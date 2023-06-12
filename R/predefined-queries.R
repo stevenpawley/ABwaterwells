@@ -293,6 +293,7 @@ add_ground_elevation <- function(logs) {
   dem <- terra::rast(fp)
 
   log_crds <- logs |>
+    as.data.frame() |>
     terra::vect(geom = c("longitude", "latitude"), crs = "epsg:4326") |>
     terra::project("epsg:3402")
 
