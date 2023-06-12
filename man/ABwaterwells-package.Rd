@@ -4,8 +4,8 @@
 \name{ABwaterwells-package}
 \alias{ABwaterwells}
 \alias{ABwaterwells-package}
-\title{ABwaterwells: What the Package Does (Title Case)}
+\title{ABwaterwells: Retrieval and Analysis of the Alberta Water Well Information Database}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+Provides a set of tools for obtaining water well data from the Alberta Environment and Protected Areas (AEPA) OData service and performing geological and hydrogeological analyses.
 }
 \keyword{internal}
