@@ -171,6 +171,9 @@ metricate.lithologies <- function(x, ...) {
       description = dplyr::na_if(.data$description, "")
     )
 
+  # set class
+  class(x) <- c("lithologies", "awwid", class(x))
+
   return(x)
 }
 
