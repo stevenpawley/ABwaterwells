@@ -1,3 +1,16 @@
+add_projected_coords <- function(obj) {
+  obj <- obj |>
+    terra::vect(geom = c("longitude", "latitude"), crs = "epsg:4326", keepgeom = TRUE) |>
+    terra::project("epsg:3402")
+
+  obj$x <- terra::crds(obj)[, 1]
+  obj$y <- terra::crds(obj)[, 2]
+  obj <- obj |>
+    as.data.frame() |>
+    dplyr::as_tibble()
+  return(obj)
+}
+
 #' Snap bedrock picks to the log intervals and assign a unit column to either
 #' 'Bedrock' or 'Surficial'
 #'
@@ -14,7 +27,7 @@
 #' @export
 lithologs_snap <- function(lithologs) {
   snapped_bedrock <- lithologs |>
-    dplyr::group_by(.data$id) |>
+    dplyr::group_by(.data$gicwellid) |>
     dplyr::mutate(diff = abs(.data$int_top_dep - .data$bedrock_dep)) |>
     dplyr::filter(diff == min(.data$diff)) |>
     dplyr::slice_head() |>
@@ -25,7 +38,7 @@ lithologs_snap <- function(lithologs) {
       .data$int_top_dep,
       .data$int_bot_dep
     )) |>
-    dplyr::select("id", "bedrock_dep_snapped")
+    dplyr::select("gicwellid", "bedrock_dep_snapped")
 
   lithologs <- lithologs |>
     dplyr::left_join(snapped_bedrock) |>
@@ -75,7 +88,7 @@ lithologs_assign <- function(lithologs) {
 #' Unfortunately, this identifier is not entirely unique and there are some
 #' duplicated ids.
 #'
-#' This function joins the picks with the lithologs based on 'id', but also
+#' This function joins the picks with the lithologs based on 'gicwellid', but also
 #' removes joined locations where the pick coordinates are not within 500 m of
 #' the litholog coordinates. This should not remove more than 3000 picks out of
 #' ~ 130,000 otherwise an error is raised.
@@ -86,15 +99,19 @@ lithologs_assign <- function(lithologs) {
 #' @return the joined data
 #' @export
 lithologs_join <- function(lithologs, picks) {
+  # convert coordinates
+  lithologs <- add_projected_coords(lithologs)
+  picks <- add_projected_coords(picks)
+
   # join logs with picks
   picks_df <- picks |>
-    dplyr::select(c("id", "x", "y", "bedrock_dep")) |>
+    dplyr::select(c("gicwellid", "x", "y", "bedrock_dep")) |>
     dplyr::rename(picks_x = "x", picks_y = "y")
 
   lithologs_labelled <- dplyr::left_join(
     lithologs,
     picks_df,
-    by = dplyr::join_by("id")
+    by = dplyr::join_by("gicwellid")
   )
 
   # set joined columns to NA if the coordinates do not match within tolerance
@@ -107,7 +124,7 @@ lithologs_join <- function(lithologs, picks) {
         NA_real_
       )
     ) |>
-    dplyr::select(-c("picks_x", "picks_y"))
+    dplyr::select(-c("picks_x", "picks_y", "x", "y"))
 
   return(lithologs_labelled)
 }
@@ -126,19 +143,19 @@ lithologs_join <- function(lithologs, picks) {
 #' @param response character, name of column with the labels (either "Bedrock"
 #'   or "Surficial")
 #'
-#' @return tibble containing the bedrock depths per well, with 'id' and
+#' @return tibble containing the bedrock depths per well, with 'gicwellid' and
 #'   '.bedrock_dep' columns.
 #' @export
 pick_bedrock_first <- function(lithologs, response = ".pred_class") {
   first_bedrock <- lithologs |>
-    dplyr::group_by(.data$id) |>
+    dplyr::group_by(.data$gicwellid) |>
     dplyr::filter(
       !!rlang::sym(response) == "Bedrock",
       !duplicated(!!rlang::sym(response))
     ) |>
     dplyr::ungroup() |>
     dplyr::rename(.bedrock_dep = "int_top_dep") |>
-    dplyr::select("id", ".bedrock_dep")
+    dplyr::select("gicwellid", ".bedrock_dep")
 
   return(first_bedrock)
 }
@@ -157,20 +174,20 @@ pick_bedrock_first <- function(lithologs, response = ".pred_class") {
 #' @param response character, name of the response variable column, default
 #' is '.pred_class'
 #'
-#' @return tibble containing the bedrock depths per well, with 'id' and
+#' @return tibble containing the bedrock depths per well, with 'gicwellid' and
 #'   '.bedrock_dep' columns.
 #' @export
 pick_bedrock_last <- function(lithologs, response = ".pred_class") {
   # get the maximum depth of any units that are classified as surficial
   max_surf <- lithologs |>
-    dplyr::group_by(.data$id) |>
+    dplyr::group_by(.data$gicwellid) |>
     dplyr::filter(!!rlang::sym(response) == "surficial") |>
     dplyr::summarise(minv = max(.data$int_top_dep))
 
   # take the top of the next interval beneath any surficial as the bedrock top
   y_pred <- lithologs |>
     dplyr::left_join(max_surf) |>
-    dplyr::group_by(.data$id) |>
+    dplyr::group_by(.data$gicwellid) |>
     dplyr::filter(
       .data$int_top_dep > .data$minv | is.na(.data$minv),
       !!rlang::sym(response) == "Bedrock"
@@ -178,7 +195,7 @@ pick_bedrock_last <- function(lithologs, response = ".pred_class") {
     dplyr::slice(1) |>
     dplyr::ungroup() |>
     dplyr::rename(.bedrock_dep = "int_top_dep") |>
-    dplyr::select("id", ".bedrock_dep")
+    dplyr::select("gicwellid", ".bedrock_dep")
 
   return(y_pred)
 }
@@ -202,22 +219,17 @@ picks_create_table <- function(predictions) {
   # create a pick table
   new_picks <- predictions |>
     dplyr::filter(!is.na(.data$bedrock_dep)) |>
-    dplyr::select("id", "x", "y", "gr_elev", "bedrock_dep") |>
+    dplyr::select("gicwellid", "longitude", "latitude", "gr_elev", "bedrock_dep") |>
     dplyr::mutate(
       data_type = "Borehole",
       ags_source = "NLP autopicked",
       pick_date = Sys.Date(),
-      source_type = dplyr::case_when(
-        stringr::str_detect(.data$id, "^[0-9]*$") ~ "Water well",
-        stringr::str_detect(.data$id, "AGS") ~
-          "Geotechnical / stratigraphic hole",
-        TRUE ~ "Other"
-      ),
+      source_type = "Water well",
       stratigraphy = "Bedrock top",
       data_source = "Water well",
       bedrock_elev = .data$gr_elev - .data$bedrock_dep
     ) |>
-    dplyr::distinct(.data$id, .keep_all = TRUE)
+    dplyr::distinct(.data$gicwellid, .keep_all = TRUE)
 
   return(new_picks)
 }
