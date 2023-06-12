@@ -15,7 +15,7 @@ which as two factor levels, 'Bedrock' and 'Surficial'.}
 is '.pred_class'}
 }
 \value{
-tibble containing the bedrock depths per well, with 'id' and
+tibble containing the bedrock depths per well, with 'gicwellid' and
   '.bedrock_dep' columns.
 }
 \description{

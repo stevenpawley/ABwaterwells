@@ -223,6 +223,71 @@ query_awwid_screens <-
     return(screens_merged)
   }
 
+
+#' Predefined query to extract a table of static water levels
+#'
+#' @param wells tibble of wells data
+#' @param well_reports tibble of well reports data
+#' @param pump_tests tibble of pump tests
+#'
+#' @return tibble
+#' @export
+#' @examples
+#' wells <-
+#'   request_awwid("wells", select = "wellid,gicwellid,longitude,latitude") |>
+#'   metricate()
+#'
+#' well_reports <-
+#'   request_awwid("wellreports", select = "wellid,wellreportid") |>
+#'   metricate()
+#'
+#' pumptests <-
+#'   request_awwid("pumptests", select = "wellreportid,staticwaterlevel,testdate") |>
+#'   metricate()
+#'
+#' query_staticwater(wells, well_reports, pumptests) |>
+#'   tidyr::drop_na(staticwaterlevel)
+query_staticwater <- function(wells, well_reports, pump_tests) {
+  # check required columns
+  pumptest_cols <- c(
+    "wellreportid",
+    "staticwaterlevel",
+    "testdate"
+  )
+  check_cols <- pumptest_cols %in% names(pump_tests)
+
+  if (!all(check_cols)) {
+    missing <- pumptest_cols[!check_cols]
+    missing <- paste(missing, collapse = ", ")
+    rlang::abort(glue::glue(
+      "The `pump_tests` tibble is missing the required column(s): {missing}"
+    ))
+  }
+
+  reports_cols <- c("wellid", "wellreportid")
+  check_cols <- reports_cols %in% names(well_reports)
+
+  if (!all(check_cols)) {
+    missing <- reports_cols[!check_cols]
+    missing <- paste(missing, collapse = ", ")
+    rlang::abort(glue::glue(
+      "The `well_reports` tibble is missing the required column(s): {missing}"
+    ))
+  }
+
+  pumptests <-
+    dplyr::left_join(wells, well_reports) |>
+    dplyr::left_join(pumptests)
+
+  pumptests_agg = pumptests |>
+    dplyr::group_by(.data$gicwellid) |>
+    dplyr::arrange(dplyr::desc(.data$testdate), .by_group = TRUE) |>
+    dplyr::slice(1) |>
+    dplyr::as_tibble()
+
+  return(pumptests_agg)
+}
+
 add_ground_elevation <- function(logs) {
   fp <- system.file("extdata/dem.tif", package = "ABwaterwells")
   dem <- terra::rast(fp)

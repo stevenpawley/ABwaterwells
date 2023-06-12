@@ -26,7 +26,7 @@ column that can be used to relate the picks back to the logs.
 Unfortunately, this identifier is not entirely unique and there are some
 duplicated ids.
 
-This function joins the picks with the lithologs based on 'id', but also
+This function joins the picks with the lithologs based on 'gicwellid', but also
 removes joined locations where the pick coordinates are not within 500 m of
 the litholog coordinates. This should not remove more than 3000 picks out of
 ~ 130,000 otherwise an error is raised.
