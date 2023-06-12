@@ -72,7 +72,7 @@ list_awwid <- function() {
 #' @export
 #'
 #' @examples
-#' fetch_awwid("wells", top = 10)
+#' request_awwid("wells", top = 10)
 request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
@@ -100,12 +100,12 @@ request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   query <- c()
 
   if (!is.null(filter)) {
-    filter <- URLencode(filter)
+    filter <- utils::URLencode(filter)
     query <- c(query, glue::glue("$filter={filter}"))
   }
 
   if (!is.null(select)) {
-    select <- URLencode(select)
+    select <- utils::URLencode(select)
     query <- c(query, glue::glue("$select={select}"))
   }
 

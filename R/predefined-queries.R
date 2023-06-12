@@ -2,8 +2,8 @@
 #' 'lithologies' tables
 #'
 #' @param wells tibble of the 'wells' table from AWWID
-#' @param reports tibble of the 'wellreports' table from AWWID. Only the columns
-#'  'wellreportid', 'wellid', and 'totaldepthdrilled' are required.
+#' @param well_reports tibble of the 'wellreports' table from AWWID. Only the
+#'   columns 'wellreportid', 'wellid', and 'totaldepthdrilled' are required.
 #' @param lithologies tibble of the 'lithologies' table from AWWID
 #'
 #' @return tibble of processed AWWID litholog data

@@ -29,5 +29,5 @@ AWWID can can be obtained through standard REST requests to
 <https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata>
 }
 \examples{
-fetch_awwid("wells", top = 10)
+request_awwid("wells", top = 10)
 }

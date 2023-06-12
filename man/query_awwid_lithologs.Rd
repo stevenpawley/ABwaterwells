@@ -10,10 +10,10 @@ query_awwid_lithologs(wells, well_reports, lithologies)
 \arguments{
 \item{wells}{tibble of the 'wells' table from AWWID}
 
-\item{lithologies}{tibble of the 'lithologies' table from AWWID}
+\item{well_reports}{tibble of the 'wellreports' table from AWWID. Only the
+columns 'wellreportid', 'wellid', and 'totaldepthdrilled' are required.}
 
-\item{reports}{tibble of the 'wellreports' table from AWWID. Only the columns
-'wellreportid', 'wellid', and 'totaldepthdrilled' are required.}
+\item{lithologies}{tibble of the 'lithologies' table from AWWID}
 }
 \value{
 tibble of processed AWWID litholog data
