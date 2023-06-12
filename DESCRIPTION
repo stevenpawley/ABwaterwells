@@ -11,5 +11,12 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Imports: 
-    data.table,
-    terra
+    dplyr,
+    stringr,
+    terra,
+    tidyr,
+    httr2,
+    jsonlite,
+    furrr,
+    glue,
+    rlang

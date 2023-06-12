@@ -1,0 +1,103 @@
+material,grainsize,code
+Old Well,1,missing
+Clay,1,clay
+Shale,1,shale
+Clay & Silt,1,clay
+Clay & Shale,1,clay
+Shale & Coal,1,shale
+Clay & Coal,1,clay
+Shale & Siltstone,1,shale
+Bentonite,1,clay
+Unknown,1,missing
+See Comments,1,missing
+Bedrock,1,hard rock
+Mudstone,1,shale
+Chert,1,sand & gravel
+Ironstone,1,ironstone
+Shale & Silt,1,shale
+Shale & Sandy Stringers,1,shale
+Shale Stringers,1,shale
+Fill,1,missing
+Lost Circulation,1,missing
+Clay & Sandstone Layers,1,clay
+Predrilled,1,missing
+Claystone,1,shale
+Soapstone,1,hard rock
+Formation,1,missing
+Concretions,1,ironstone
+Hard Pan,1,ironstone
+Sea Shells,1,shale
+Unreadable,1,missing
+Dolomite,1,carbonates
+Blind,1,missing
+Caprock,1,shale
+Pale Beds,1,hard rock
+Mudstone & Siltstone,1,shale
+Topsoil,1.5,soil
+Coal,1.5,coal
+Shale & Sandstone,1.5,shale
+Clay & Sand,1.5,clay
+Shale & Sandstone Ledges,1.5,shale
+Limestone,1.5,carbonates
+Hard Ledges,1.5,shale
+Siltstone,1.5,siltstone
+Silt,1.5,silt
+Muskeg,1.5,peat
+Clay & Sandstone,1.5,clay
+Organic Matter,1.5,peat
+Siltstone & Coal,1.5,siltstone
+Silt & Sandstone,1.5,siltstone
+Silt & Coal,1.5,silt
+Siltstone & Sandstone,2,siltstone
+Till,2,till
+Clay & Rocks,2,till
+Clay & Boulders,2,till
+Clay & Gravel,2,till
+Sand & Shale,2,interbedded sandstone and shale
+Till & Clay,2,till
+Till & Rocks,2,till
+Shale & Gravel,2,shale
+Silt & Rocks,2,till
+Sandstone & Rocks,2,sandstone
+Sand & Silt,2,sand
+Shale & Rocks,2,till
+Till & Gravel,2,till
+Overburden,2,till
+Drift,2,till
+Surficial,2,till
+Sand & Clay,2,sand
+Colluvium,2,till
+Till & Sand Stringers,2.2,till
+Sandstone & Shale Ledges,2.5,sandstone
+Sand & Coal,2.5,sand
+Sand & Till,2.5,till
+Sandstone & Coal,2.5,sandstone
+Sandstone & Shale Strgs,2.5,sandstone
+Sand & Clay Stringers,2.5,sand
+Sandstone & Shale Stringers,2.5,sandstone
+Till & Sand,2.5,till
+Sandstone & Shale,2.5,sandstone
+Sandstone,3,sandstone
+Sand,3,sand
+Quicksand,3,sand
+Sand & Sandstone,3,sandstone
+Tarsand,3,sandstone
+Sandstone Stringers,3,sandstone
+Granite,3,hard rock
+Sandrock,3,sandstone
+Sandstone & Clay Strgs,3,sandstone
+Aquifer,3,sandstone
+Volcanic Tuff,3,hard rock
+Sand & Gravel,4,sand & gravel
+Gravel,4,sand & gravel
+Rocks,4,sand & gravel
+Sand & Rocks,4,sand & gravel
+Sand & Boulders,4,sand & gravel
+Boulders,4,sand & gravel
+Gravel & Boulders,4,sand & gravel
+Stones,4,sand & gravel
+Conglomerate,4,sand & gravel
+Sandstone & Gravel,4,sand & gravel
+Traprock,4,sand & gravel
+Gravel & Hard Pan,4,sand & gravel
+Pea Gravel,4,sand & gravel
