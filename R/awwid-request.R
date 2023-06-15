@@ -119,7 +119,7 @@ request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
     httr2::req_perform()
   counts <- as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
-  if ((is.null(top) || top > 10000) & counts > 10000) {
+  if ((is.null(top) || top > 10000) && counts > 10000) {
     df <- furrr::future_map(
       .x = seq(0L, counts, by = 10000L),
       ~ get_query(url = r, query = query, skip = .x) |>
