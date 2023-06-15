@@ -10,7 +10,8 @@
 #' @export
 query_awwid_lithologs <- function(wells, well_reports, lithologies) {
   # check the required columns are present
-  check_wells <- c("gicwellid", "wellid", "longitude", "latitude") %in% names(wells)
+  check_wells <-
+    c("gicwellid", "wellid", "longitude", "latitude") %in% names(wells)
 
   if (!all(check_wells)) {
     missing <- c("gicwellid", "wellid", "longitude", "latitude")[!check_wells]
@@ -20,7 +21,8 @@ query_awwid_lithologs <- function(wells, well_reports, lithologies) {
     ))
   }
 
-  check_reports <- c("wellid", "wellreportid", "totaldepthdrilled") %in% names(well_reports)
+  check_reports <-
+    c("wellid", "wellreportid", "totaldepthdrilled") %in% names(well_reports)
 
   if (!all(check_reports)) {
     missing <- c("wellid", "wellreportid", "totaldepthdrilled")[!check_reports]
@@ -58,7 +60,10 @@ query_awwid_lithologs <- function(wells, well_reports, lithologies) {
 
   awwid_lithologies <- dplyr::left_join(
     lithologies,
-    dplyr::select(well_reports, c("wellid", "wellreportid", "totaldepthdrilled")),
+    dplyr::select(
+      well_reports,
+      c("wellid", "wellreportid", "totaldepthdrilled")
+    ),
     by = dplyr::join_by("wellreportid")
   )
 
@@ -131,7 +136,8 @@ query_awwid_lithologs <- function(wells, well_reports, lithologies) {
     "waterbearing"
   )
   awwid <- awwid |>
-    dplyr::select(!!!col_order)
+    dplyr::select(!!!col_order) |>
+    dplyr::as_tibble()
 
   return(awwid)
 }
@@ -167,7 +173,8 @@ query_awwid_screens <-
     linking <- wells_reports |>
       dplyr::select(c("wellid", "wellreportid")) |>
       dplyr::left_join(
-        wells |> dplyr::select(c("wellid", "gicwellid", "longitude", "latitude")),
+        wells |>
+          dplyr::select(c("wellid", "gicwellid", "longitude", "latitude")),
         by = dplyr::join_by("wellid")
       ) |>
       dplyr::select(-"wellid")
@@ -242,7 +249,10 @@ query_awwid_screens <-
 #'   metricate()
 #'
 #' pumptests <-
-#'   request_awwid("pumptests", select = "wellreportid,staticwaterlevel,testdate") |>
+#'   request_awwid(
+#'     "pumptests",
+#'     select = "wellreportid,staticwaterlevel,testdate"
+#' ) |>
 #'   metricate()
 #'
 #' query_staticwater(wells, well_reports, pumptests) |>

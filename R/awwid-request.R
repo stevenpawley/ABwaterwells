@@ -120,11 +120,14 @@ request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   counts <- as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
   if ((is.null(top) || top > 10000) & counts > 10000) {
-    df <- furrr::future_map_dfr(
+    df <- furrr::future_map(
       .x = seq(0L, counts, by = 10000L),
-      ~ get_query(url = r, query = query, skip = .x),
+      ~ get_query(url = r, query = query, skip = .x) |>
+        data.table::as.data.table(),
       .progress = TRUE
     )
+    df <- data.table::rbindlist(df)
+    df <- dplyr::as_tibble(df)
   } else {
     df <- get_query(url = r, query = query, top = top)
   }
