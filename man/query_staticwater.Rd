@@ -29,7 +29,10 @@ well_reports <-
   metricate()
 
 pumptests <-
-  request_awwid("pumptests", select = "wellreportid,staticwaterlevel,testdate") |>
+  request_awwid(
+    "pumptests",
+    select = "wellreportid,staticwaterlevel,testdate"
+) |>
   metricate()
 
 query_staticwater(wells, well_reports, pumptests) |>

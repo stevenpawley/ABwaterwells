@@ -8,4 +8,12 @@
 \description{
 Provides a set of tools for obtaining water well data from the Alberta Environment and Protected Areas (AEPA) OData service and performing geological and hydrogeological analyses.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/stevenpawley/ABwaterwells}
+  \item Report bugs at \url{https://github.com/stevenpawley/ABwaterwells/issues}
+}
+
+}
 \keyword{internal}
