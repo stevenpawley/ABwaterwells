@@ -185,18 +185,23 @@ query_awwid_screens <-
       linking,
       by = dplyr::join_by("wellreportid")
     )
+
+    screens <- dplyr::left_join(
+      screens,
+      linking,
+      by = dplyr::join_by("wellreportid")
+    )
+
     screens_perfs <- dplyr::bind_rows(screens, perfs)
 
     # aggregate the full depth range of screens/perfs for each well
     screens_avg <- screens_perfs |>
+      dtplyr::lazy_dt() |>
       dplyr::group_by(.data$gicwellid) |>
-      dplyr::arrange(
-        dplyr::desc(.data$screendepthfrom), .by_group = TRUE
-      ) |>
       dplyr::summarize(
-        wellreportid = dplyr::first(.data$wellreportid),
-        longitude = dplyr::first(.data$longitude),
-        latitude = dplyr::first(.data$latitude),
+        wellreportid = dplyr::first(.data$wellreportid, na_rm = TRUE),
+        longitude = dplyr::first(.data$longitude, na_rm = TRUE),
+        latitude = dplyr::first(.data$latitude, na_rm = TRUE),
         screendepthfrom = min(.data$screendepthfrom, na.rm = TRUE),
         screendepthto = max(.data$screendepthto, na.rm = TRUE)
       ) |>
@@ -217,7 +222,7 @@ query_awwid_screens <-
     missing_screens <-
       dplyr::left_join(
         missing_screens,
-        dplyr::select(wells, c("wellid", "gicwellid")),
+        dplyr::select(wells, c("wellid", "gicwellid", "latitude", "longitude")),
         by = "wellid"
       ) |>
       dplyr::select(-"wellid") |>
@@ -225,7 +230,8 @@ query_awwid_screens <-
 
     screens_merged <-
       dplyr::bind_rows(screens_avg, missing_screens) |>
-      dplyr::distinct(.data$gicwellid, .keep_all = TRUE)
+      dplyr::distinct(.data$gicwellid, .keep_all = TRUE) |>
+      tidyr::drop_na(c("gicwellid", "latitude", "longitude"))
 
     return(screens_merged)
   }

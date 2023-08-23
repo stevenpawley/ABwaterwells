@@ -2,7 +2,18 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom dplyr tibble
+#' @importFrom data.table :=
+#' @importFrom data.table .BY
+#' @importFrom data.table .EACHI
+#' @importFrom data.table .GRP
+#' @importFrom data.table .I
+#' @importFrom data.table .N
+#' @importFrom data.table .NGRP
+#' @importFrom data.table .SD
+#' @importFrom data.table data.table
 #' @importFrom dplyr .data
+#' @importFrom dplyr tibble
 ## usethis namespace: end
 NULL
+
+#' @import data.table
