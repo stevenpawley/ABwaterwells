@@ -421,7 +421,7 @@ tblAwwid = R6::R6Class(
       )
       cols = grep(paste(cols, collapse = "|"), names(x))
       for (j in cols) data.table::set(x, j = j, value = as.logical(x[[j]]))
-      return(as.data.table(x))
+      return(data.table::as.data.table(x))
     },
 
     metricate_perforations = function(x) {
