@@ -1,0 +1,89 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# ABwaterwells
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The goal of **ABwaterwells** is to provide an R API to access water well data in Alberta.
+
+## Installation
+
+You can install the development version of ABwaterwells from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("stevenpawley/ABwaterwells")
+```
+
+## Example
+
+A basic request of the 'wells' and 'wellreports' tables. Requests are performed in chunks in parallel.
+
+```{r example}
+library(ABwaterwells)
+library(future)
+plan("multisession")
+
+# create a connection
+con = dbAwwid$new()
+
+# request individual tables
+wells = con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
+
+reports = con$request(
+  "wellreports", 
+  select = c("wellid", "wellreportid", "totaldepthdrilled")
+)
+
+# the data from these objects is stored in the 'data' field
+head(wells$data)
+```
+
+To view the available tables:
+
+```{r list-tables}
+con$tables
+```
+
+Data in the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) is stored in imperial units. The `metricate` method can be used to automatically convert each table into metric units:
+
+```{r metricate}
+# the 'metricate' method automatically converts fields from each table into metric units
+wells_df = wells$metricate()
+reports_df = reports$metricate()
+
+head(wells_df)
+```
+
+To save on the number of requests, the **ABwaterwells** package automatically caching the results of specific requests. This means if a request is repeated, the data will be returned almost immediately:
+
+```{r caching}
+con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
+```
+
+Several predefined queries that perform common processing tasks are also included in the package. Caching is used in these queries so that previous requests, for example, to the wells table, do not get performed repeatedly:
+
+```{r queries}
+lithologs = con$query_lithologs()
+screens = con$query_screens()
+waterlevel = con$query_water_level()
+```
+
+```{r show-lithologs}
+head(lithologs)
+```

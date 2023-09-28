@@ -75,7 +75,7 @@ dbAwwid = R6::R6Class(
       resp = file.path(self$url, name, query_count) |>
         httr2::request() |>
         httr2::req_retry(max_tries = 10) |>
-        httr2::req_perform()
+        httr2::req_perform(verbosity = 0)
       counts = as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
       # check for previously cached results
@@ -399,7 +399,7 @@ dbAwwid = R6::R6Class(
         )
 
       result = resp |>
-        httr2::req_perform()
+        httr2::req_perform(verbosity = 0)
 
       # coerce output to json
       result = result |>
