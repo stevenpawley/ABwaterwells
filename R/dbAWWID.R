@@ -12,26 +12,35 @@ dbAwwid = R6::R6Class(
     #' @field url The base URL
     url = "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata",
 
-    #' @field tables A character vector of tables that are contained in AWWID
+    #' @field tables A character vector of tables that are contained in AWWID.
     tables = NULL,
+
+    #' @field cache Logical to indicate whether the results from the
+    #'   queries/requests will be cached.
+    cache = TRUE,
 
     #' @description
     #' Initialize a connection to the AEPA web server
-    #' @return a R6 class
-    initialize = function() {
+    #' @param cache whether to internally cache the results of the requests.
+    #'   This can increase performance for example, for queries where the wells
+    #'   or well reports tables need to be repeatedly downloaded. The default is
+    #'   TRUE.
+    #' @return a R6 class.
+    initialize = function(cache = TRUE) {
       self$tables = tolower(private$list_tables())
+      self$cache = cache
     },
 
     #' @description
     #' Request a table from the web server with options to filter the data
     #' on the server using OData conventions
-    #' @param name, name of the table to download
+    #' @param name, name of the table to download.
     #' @param filter odata compatible query to filter the data before
-    #'   downloading
-    #' @param select a character vector of columns to select
+    #'   downloading.
+    #' @param select a character vector of columns to select.
     #' @param top integer, optionally return only the first specified number of
-    #'   rows
-    #' @return a R6 class
+    #'   rows.
+    #' @return a R6 class.
     request = function(name, filter = NULL, select = NULL, top = NULL) {
       # some checks
       if (!tolower(name) %in% tolower(self$tables)) {
@@ -42,6 +51,7 @@ dbAwwid = R6::R6Class(
       }
 
       if (length(select) > 1) {
+        select = sort(select)
         select = paste(select, collapse = ",")
       }
 
@@ -68,6 +78,14 @@ dbAwwid = R6::R6Class(
         httr2::req_perform()
       counts = as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
+      # check for previously cached results
+      request_tag = private$add_query_options(name, query, top = top)
+      if (!is.null(private$caching[[request_tag]])) {
+        tbl = private$caching[[request_tag]]
+        return(tbl)
+      }
+
+      # perform request in chunks of 10000 rows (REST max)
       if ((is.null(top) || top > 10000) & counts > 10000) {
         df = pbapply::pblapply(
           seq(0L, counts, by = 10000L),
@@ -81,7 +99,6 @@ dbAwwid = R6::R6Class(
         )
         request_url = private$add_query_options(name, query)
         df = data.table::rbindlist(df)
-
       } else {
         request_url = private$add_query_options(name, query, top = top)
         df = private$get_query(request_url)
@@ -90,6 +107,12 @@ dbAwwid = R6::R6Class(
 
       data.table::setkeyv(df, names(df)[1])
       tbl = tblAwwid$new(name = name, x = df, request = request_url)
+
+      if (self$cache) {
+        request_tag = private$add_query_options(name, query, top = top)
+        private$caching[[request_tag]] = tbl$clone()
+      }
+
       return(tbl)
     },
 
@@ -101,7 +124,7 @@ dbAwwid = R6::R6Class(
     #' descriptions from the 'lithologies' table.
     #' @param ext optional numeric vector specifying the rectangular bounding box
     #'   of wells to return. Must be specified as c(xmin, ymin, xmax, ymax).
-    #' @return a data.table
+    #' @return a data.table.
     query_lithologs = function(ext = NULL) {
       # request well data filtered by ext
       message("requesting `wells` table")
@@ -110,18 +133,12 @@ dbAwwid = R6::R6Class(
       # request well reports filtered by wellid present in wells
       message("requesting `wellreports` table")
       report_cols = c("wellreportid", "wellid", "totaldepthdrilled")
-      filter_query = glue::glue(
-        "wellid ge {min(awwid_wells$wellid)} and wellid le {max(awwid_wells$wellid)}"
-      )
-      well_reports = self$request("wellreports", select = report_cols, filter = filter_query)$metricate()
+      well_reports = self$request("wellreports", select = report_cols)$metricate()
 
       # request lithologies
       message("requesting `lithologies` table")
       lithologies_cols = c("wellreportid", "depth", "material", "description", "colour", "waterbearing")
-      filter_query = glue::glue(
-        "wellreportid ge {min(well_reports$wellreportid)} and wellreportid le {max(well_reports$wellreportid)}"
-      )
-      lithologies = self$request("lithologies", select = lithologies_cols, filter = filter_query)$metricate()
+      lithologies = self$request("lithologies", select = lithologies_cols)$metricate()
 
       # merge tables
       awwid_lithologies = merge(
@@ -200,6 +217,7 @@ dbAwwid = R6::R6Class(
     #' @param ext optionally provide a character vector to specify the
     #' geographic extent of the downloaded data, in the order of
     #' c(xmin, ymin, xmax, ymax).
+    #' @return return a data.table of depth to well screens.
     query_screens = function(ext = NULL) {
       # request well data filtered by ext
       message("requesting `wells` table")
@@ -209,6 +227,7 @@ dbAwwid = R6::R6Class(
       message("requesting `wellreports` table")
       report_cols = c("wellreportid", "wellid", "totaldepthdrilled")
       reports = self$request("wellreports", select = report_cols)$metricate()
+      reports[, c("totaldepthdrilled") := NULL]
 
       # request screens data
       message("requesting `screens` table")
@@ -249,6 +268,93 @@ dbAwwid = R6::R6Class(
       screens_avg[, c("screendepthmid") :=
                     get("screendepthfrom") + (get("screendepthto") - get("screendepthfrom")) / 2]
       return(screens_avg)
+    },
+
+    #' @description
+    #' Predefined query to extract a table of static water depths from AWWID
+    #' based on the pump tests table
+    #' @details
+    #' The query downloads the wells, well reports and pump tests tables. These
+    #' are joined based on getting the linking the well reports to the wells
+    #' table using the 'wellid' column. We do this because the well reports
+    #' table also contains the 'gicwellid'. Then we join the pump tests table to
+    #' the previous dataset based on the 'wellreportid'.
+    #'
+    #' To get the static water depth, we use the 'staticwaterlevel' column. For
+    #' wells that have multiple pump tests, the method specified in 'keep' is
+    #' used. The default is to retain only the newest test.
+    #'
+    #' @param ext optional numeric vector specifying the rectangular bounding box
+    #'   of wells to return. Must be specified as c(xmin, ymin, xmax, ymax).
+    #' @param keep character, method to use to aggregate wells that contain
+    #'   multiple pump test measurements. One of c("newest", "average",
+    #'   "maximum", "minimum").
+    #' @return returns a data.table of static water levels.
+    query_water_level = function(ext = NULL,
+                                 keep = c("newest", "average", "maximum", "minimum")) {
+      keep_method = match.arg(keep)
+
+      # request required tables
+      message("Requesting `wells` table")
+      wells = private$request_wells_geographic(ext)
+      data.table::setkeyv(wells, "wellid")
+
+      message("Requesting `pumptests` table")
+      pump_tests = self$request(
+        name = "pumptests",
+        select = c("wellreportid", "staticwaterlevel", "testdate")
+      )
+      pump_tests = pump_tests$metricate()
+      data.table::setkeyv(pump_tests, "wellreportid")
+
+      message("Requesting `wellreports` table")
+      well_reports = self$request(
+        name = "wellreports",
+        select = c("wellid", "wellreportid", "totaldepthdrilled")
+      )
+      well_reports = well_reports$metricate()
+      well_reports[, c("totaldepthdrilled") := NULL]
+      data.table::setkeyv(well_reports, "wellreportid")
+
+      # join the wells and well reports tables to get the gicwellid
+      wellindex = well_reports[wells]
+
+      # join the pump tests
+      pumptests = wellindex[pump_tests]
+
+      # aggregate multiple pump tests
+      pumptests = pumptests[, .SD[order(get("testdate"))], by = "gicwellid"]
+
+      if (keep_method == "newest") {
+        pumptests_agg = pumptests[, data.table::first(.SD), by = "gicwellid"]
+
+      } else if (keep_method %in% c("average", "maximum", "minimum")) {
+        aggfunc = switch(
+          keep_method,
+          average = mean,
+          maximum = max,
+          minimum = min
+        )
+
+        pumptests_agg = pumptests[, .(
+          staticwaterlevel = aggfunc(staticwaterlevel, na.rm = TRUE),
+          wellid = data.table::first(wellid),
+          wellreportid = data.table::first(wellreportid),
+          longitude = data.table::first(longitude),
+          latitude = data.table::first(latitude)
+          ),
+          by = "gicwellid"
+        ]
+      }
+
+      return(pumptests_agg)
+    },
+
+    #' @description
+    #' Clear the internal cache of previous requests
+    #' @return NULL
+    clear_cache = function() {
+      self$private$caching = list()
     }
   ),
 
@@ -308,7 +414,8 @@ dbAwwid = R6::R6Class(
     },
 
     add_ground_elevation = function(logs) {
-      dem = terra::rast("/vsiaz/feature-store/dems/esrd_dem_100m.tif")
+      fp = system.file("extdata/dem.tif", package = "ABwaterwells")
+      dem = terra::rast(fp)
 
       v = terra::vect(logs, geom = c("longitude", "latitude"), crs = "epsg:4326")
       v = terra::project(v, "epsg:3402")
@@ -334,6 +441,8 @@ dbAwwid = R6::R6Class(
       }
       wells_cols = c("gicwellid", "wellid", "longitude", "latitude")
       self$request("wells", select = wells_cols, filter = filter_query)$metricate()
-    }
+    },
+
+    caching = list()
   )
 )

@@ -39,16 +39,11 @@ allocate <- function(lithologs, screens, model) {
     dplyr::mutate(litholog_present = tidyr::replace_na(.data$litholog_present, FALSE))
 
   # extract missing values from interpolated surface
-  endp <- AzureStor::blob_endpoint(
-    endpoint = Sys.getenv("AZURE_STORAGE_ACCOUNT"),
-    key = Sys.getenv("AZURE_KEY")
-  )
-  bl <- AzureStor::blob_container(endp, "pins")
-  board <- pins::board_azure(bl, "near-surface")
-
-  dtb <- board |>
-    pins::pin_download("dtb-prov") |>
-    terra::rast()
+  board_ags = pins::board_url(c(dtb = "https://static.ags.aer.ca/files/document/DIG/DIG_2023_0014.zip"))
+  dtb = board_ags |>
+    pins::pin_download("dtb")
+  unzip(dtb, exdir = tempdir())
+  dtb = terra::rast(file.path(tempdir(), "DIG_2023_0014", "depth_to_bedrock_10tm.tif"))
 
   screens_picked_prj <- screens_picked |>
     terra::vect(geom = c("longitude", "latitude"), crs = "epsg:4326") |>
