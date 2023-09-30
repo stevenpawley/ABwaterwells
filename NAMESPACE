@@ -2,6 +2,7 @@
 
 export(allocate)
 export(dbAwwid)
+export(pick_bedrock)
 importFrom(data.table,":=")
 importFrom(data.table,.BY)
 importFrom(data.table,.EACHI)

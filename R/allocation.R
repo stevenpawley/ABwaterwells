@@ -11,7 +11,6 @@
 #' @return tibble of allocated screens
 #' @export
 allocate = function(lithologs, screens, model) {
-
   # prepare lithologs for ml prediction model
   lithologs = data.table::copy(lithologs)
   lithologs = na.omit(lithologs, cols = c("latitude", "longitude"))
