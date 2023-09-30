@@ -227,7 +227,7 @@ dbAwwid = R6::R6Class(
       message("requesting `wellreports` table")
       report_cols = c("wellreportid", "wellid", "totaldepthdrilled")
       reports = self$request("wellreports", select = report_cols)$metricate()
-      reports[, c("totaldepthdrilled") := NULL]
+      reports[, "totaldepthdrilled" := NULL]
 
       # request screens data
       message("requesting `screens` table")
@@ -241,7 +241,8 @@ dbAwwid = R6::R6Class(
 
       # create a lookup table to relate gicwellid to the wellreportid
       linking = merge(reports, wells, by = "wellid")
-      linking = linking[, .SD, .SDcols = c("wellid", "wellreportid", "gicwellid")]
+      linking = linking[, .SD, .SDcols = c("wellid", "wellreportid", "gicwellid",
+                                           "latitude", "longitude")]
 
       # combine the perforations and screens
       perfs_gicwellid = merge(perfs, linking, by = "wellreportid")
@@ -259,13 +260,15 @@ dbAwwid = R6::R6Class(
         order(screendepthfrom),
         .(wellreportid = data.table::first(get("wellreportid")),
           screendepthfrom = min(get("screendepthfrom"), na.rm = TRUE),
-          screendepthto = max(get("screendepthto"), na.rm = TRUE)
+          screendepthto = max(get("screendepthto"), na.rm = TRUE),
+          latitude = data.table::first(get("latitude")),
+          longitude = data.table::first(get("longitude"))
         ),
         by = "gicwellid"
       ]
 
       # calculate the screen depth mid-point
-      screens_avg[, c("screendepthmid") :=
+      screens_avg[, "screendepthmid" :=
                     get("screendepthfrom") + (get("screendepthto") - get("screendepthfrom")) / 2]
       return(screens_avg)
     },

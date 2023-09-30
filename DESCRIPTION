@@ -15,17 +15,14 @@ Depends: R (>= 2.10)
 Imports: 
     dplyr,
     terra,
-    tidyr,
     httr2,
     jsonlite,
-    furrr,
     glue,
     rlang,
     lubridate,
     units,
     utils,
     data.table,
-    dtplyr,
     pins,
     pbapply
 Suggests: 

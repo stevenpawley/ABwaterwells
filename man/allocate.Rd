@@ -13,7 +13,9 @@ function}
 \item{screens}{a screens tabke derived from the `query_awwid_screens`
 function}
 
-\item{model}{a `vetiver` trained machine learning model}
+\item{model}{a `vetiver` trained machine learning model that returns a
+data.frame like object with the predicted response as a '.pred_class'
+column}
 }
 \value{
 tibble of allocated screens
