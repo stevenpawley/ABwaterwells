@@ -27,27 +27,25 @@ pick_bedrock = function(lithologs, response = ".pred_class",
   # some checks
   option = match.arg(option)
   if (!data.table::is.data.table(lithologs)) {
-    lithologs = data.table::copy(lithologs)
+    lithologs = data.table::as.data.table(lithologs)
   }
 
   if (option == "last") {
     # get the maximum depth of any units that are classified as surficial
-    max_surf = lithologs[get(response, envir = parent.frame()) == "Surficial"]
+    max_surf = lithologs[get(response) == "Surficial"]
     max_surf = max_surf[, .(minv = max(get("int_top_dep"))), by = "gicwellid"]
 
     # take the top of the next interval beneath any surficial as the bedrock top
     ypred = max_surf[lithologs, on = "gicwellid"]
     ypred = ypred[, .SD[
       (get("int_top_dep") > get("minv") | is.na(get("minv"))) &
-      (get(response, envir = parent.frame()) == "Bedrock"),
+        (get(response) == "Bedrock"),
     ], by = "gicwellid"]
     ypred = ypred[, .SD[1], by = "gicwellid"]
 
   } else if (option == "first") {
     ypred = lithologs[, .SD[
-      get(response == "Bedrock", envir = parent.frame()) &
-        !duplicated(get(response, envir = parent.frame()))
-      ],
+      get(response == "Bedrock") & !duplicated(get(response))],
       by = "gicwellid"]
   }
 
