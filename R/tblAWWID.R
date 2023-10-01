@@ -70,8 +70,10 @@ tblAwwid = R6::R6Class(
     igpm_to_lpm = function(x) units::as_units(x * 4.54609, "L/m"),
 
     metricate_default = function(x) {
-      # set id columns to integer type
+      # take copy
       x = data.table::copy(x)
+
+      # set id columns to integer type
       cols = which(endsWith(names(x), "id"))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
 
@@ -106,10 +108,7 @@ tblAwwid = R6::R6Class(
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
       # rename columns to avoid collisions
-      rename = c(
-        boreholedepthfrom = "from",
-        boreholedepthto = "to"
-      )
+      rename = c(boreholedepthfrom = "from", boreholedepthto = "to")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
       return(x)
     },
@@ -138,28 +137,32 @@ tblAwwid = R6::R6Class(
     },
 
     metricate_chemicalanalysis = function(x) {
+      # ft to metres
       cols = grep("waterlevel", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
+      # set to character type
       cols = grep("aquifer|remarks", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.character(x[[j]]))
       return(x)
     },
 
     metricate_drillingcompanies = function(x) {
+      # set lastwellidused to integer
       cols = grep("lastwellidused", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
       return(x)
     },
 
     metricate_elements = function(x) {
+      # set decimalplaces to integer
       cols = grep("decimalplaces", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
       return(x)
     },
 
     metricate_lithologies = function(x) {
-      # some checks
+      # checks
       required_cols = c("depth", "wellreportid", "material", "description")
       stopifnot(all(required_cols %in% names(x)))
 
@@ -179,7 +182,8 @@ tblAwwid = R6::R6Class(
       # calculate int_top_dep
       # awwid depth intervals represent 'to_depth', so the first row records
       # the bottom depth of the uppermost unit
-      x[, c("lithdepthfrom") := data.table::shift(get("lithdepthto"), n = 1, type = "lag", fill = 0.0),
+      x[, c("lithdepthfrom") := data.table::shift(
+        get("lithdepthto"), n = 1, type = "lag", fill = 0.0),
         by = "wellreportid"]
 
       cols = c(
@@ -209,12 +213,8 @@ tblAwwid = R6::R6Class(
       cols = setdiff(cols, exclude)
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
-      rename = c(
-        sealdepthfrom = "from",
-        sealdepthto = "to",
-        sealotherdepth = "at"
-
-      )
+      rename = c(sealdepthfrom = "from", sealdepthto = "to",
+                 sealotherdepth = "at")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
       return(x)
     },
@@ -257,11 +257,8 @@ tblAwwid = R6::R6Class(
       for (j in cols) data.table::set(x, j = j, value = private$inch_to_cm(x[[j]]))
 
       # rename
-      rename = c(
-        screendepthfrom = "from",
-        screendepthto = "to",
-        screenslotsize = "slotsize"
-      )
+      rename = c(screendepthfrom = "from", screendepthto = "to",
+                 screenslotsize = "slotsize")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
       return(x)
     },
@@ -273,16 +270,8 @@ tblAwwid = R6::R6Class(
       for (j in cols) data.table::set(x, j = j, value = as.numeric(x[[j]]))
 
       # integer
-      cols = c(
-        "distancenorth",
-        "distancesouth",
-        "distanceeast",
-        "distancewest",
-        "section",
-        "township",
-        "range",
-        "meridian"
-      )
+      cols = c("distancenorth", "distancesouth", "distanceeast", "distancewest",
+               "section", "township", "range", "meridian")
       cols = grep(paste(cols, collapse = "|"), names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
 
@@ -324,7 +313,10 @@ tblAwwid = R6::R6Class(
     },
 
     metricate_welldecommissioningdetails = function(x) {
-      cols = grep("currentstaticwaterlevel|currentwelldepth|casingcutoffbelowgroundlevel", names(x))
+      cols = grep(
+        "currentstaticwaterlevel|currentwelldepth|casingcutoffbelowgroundlevel",
+        names(x)
+      )
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
       cols = c(
