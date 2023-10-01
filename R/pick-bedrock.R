@@ -9,8 +9,8 @@
 #'
 #' @param lithologs tibble of litholog data containing the column '.pred_class'
 #'   which as two factor levels, 'Bedrock' and 'Surficial'.
-#' @param response character, name of the response variable column, default
-#' is '.pred_class'.
+#' @param response character, name of the response variable column, default is
+#'   '.pred_class'.
 #' @param option character, one of c("last", "first"). Indicates whether to
 #'   define the top of the bedrock based on the lowermost occurrence of
 #'   predicted bedrock that occurs under all other predicted surficial units, or
@@ -22,42 +22,35 @@
 #' @return tibble containing the bedrock depths per well, with 'gicwellid' and
 #'   '.bedrock_dep' columns.
 #' @export
-pick_bedrock <- function(lithologs, response = ".pred_class",
-                         option = c("last", "first")) {
-
-  option <- match.arg(option)
+pick_bedrock = function(lithologs, response = ".pred_class",
+                        option = c("last", "first")) {
+  # some checks
+  option = match.arg(option)
+  if (!data.table::is.data.table(lithologs)) {
+    lithologs = data.table::copy(lithologs)
+  }
 
   if (option == "last") {
     # get the maximum depth of any units that are classified as surficial
-    max_surf <- lithologs |>
-      dplyr::group_by(.data$gicwellid) |>
-      dplyr::filter(!!rlang::sym(response) == "Surficial") |>
-      dplyr::summarise(minv = max(.data$int_top_dep))
+    max_surf = lithologs[get(response) == "Surficial"]
+    max_surf = max_surf[, .(minv = max(get("int_top_dep"))), by = "gicwellid"]
 
     # take the top of the next interval beneath any surficial as the bedrock top
-    y_pred <- lithologs |>
-      dplyr::left_join(max_surf) |>
-      dplyr::group_by(.data$gicwellid) |>
-      dplyr::filter(
-        .data$int_top_dep > .data$minv | is.na(.data$minv),
-        !!rlang::sym(response) == "Bedrock"
-      ) |>
-      dplyr::slice(1) |>
-      dplyr::ungroup() |>
-      dplyr::rename(.bedrock_dep = "int_top_dep") |>
-      dplyr::select("gicwellid", ".bedrock_dep")
+    ypred = max_surf[lithologs, on = "gicwellid"]
+    ypred = ypred[, .SD[
+      (get("int_top_dep") > get("minv") | is.na(get("minv"))) &
+      (get(response) == "Bedrock"),
+    ], by = "gicwellid"]
+    ypred = ypred[, .SD[1], by = "gicwellid"]
 
   } else if (option == "first") {
-    y_pred <- lithologs |>
-      dplyr::group_by(.data$gicwellid) |>
-      dplyr::filter(
-        !!rlang::sym(response) == "Bedrock",
-        !duplicated(!!rlang::sym(response))
-      ) |>
-      dplyr::ungroup() |>
-      dplyr::rename(.bedrock_dep = "int_top_dep") |>
-      dplyr::select("gicwellid", ".bedrock_dep")
+    ypred = lithologs[, .SD[
+      get(response == "Bedrock") & !duplicated(get(response))],
+      by = "gicwellid"]
   }
 
-  return(y_pred)
+  data.table::setnames(ypred, "int_top_dep", ".bedrock_dep")
+  ypred = ypred[, .SD, .SDcols = c("gicwellid", ".bedrock_dep")]
+
+  return(ypred)
 }
