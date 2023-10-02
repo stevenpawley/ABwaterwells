@@ -7,7 +7,7 @@
 #' rafts of bedrock, but can potentially overestimate bedrock depth if some
 #' intervals are misclassified as surficial with the bedrock strata.
 #'
-#' @param lithologs tibble of litholog data containing the column '.pred_class'
+#' @param lithologs data.table of litholog data containing the column '.pred_class'
 #'   which as two factor levels, 'Bedrock' and 'Surficial'.
 #' @param response character, name of the response variable column, default is
 #'   '.pred_class'.
@@ -19,8 +19,8 @@
 #'   bedrock rafts, although in some cases could make the predicted bedrock top
 #'   too deep, if units in the bedrock have been misclassified as surficial.
 #'
-#' @return tibble containing the bedrock depths per well, with 'gicwellid' and
-#'   '.bedrock_dep' columns.
+#' @return data.table containing the bedrock depths per well, with 'gicwellid'
+#'   and '.bedrock_dep' columns.
 #' @export
 pick_bedrock = function(lithologs, response = ".pred_class",
                         option = c("last", "first")) {
@@ -28,6 +28,10 @@ pick_bedrock = function(lithologs, response = ".pred_class",
   option = match.arg(option)
   if (!data.table::is.data.table(lithologs)) {
     lithologs = data.table::as.data.table(lithologs)
+  }
+
+  if (!all(unique(lithologs[[response]]) %in% c("Surficial", "Bedrock"))) {
+    stop("Labels in `lithologs` must be either 'Surficial' or 'Bedrock'")
   }
 
   if (option == "last") {

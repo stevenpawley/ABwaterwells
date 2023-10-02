@@ -8,11 +8,11 @@ are labelled as either 'Bedrock' or 'Surficial'}
 pick_bedrock(lithologs, response = ".pred_class", option = c("last", "first"))
 }
 \arguments{
-\item{lithologs}{tibble of litholog data containing the column '.pred_class'
+\item{lithologs}{data.table of litholog data containing the column '.pred_class'
 which as two factor levels, 'Bedrock' and 'Surficial'.}
 
-\item{response}{character, name of the response variable column, default
-is '.pred_class'.}
+\item{response}{character, name of the response variable column, default is
+'.pred_class'.}
 
 \item{option}{character, one of c("last", "first"). Indicates whether to
 define the top of the bedrock based on the lowermost occurrence of
@@ -23,8 +23,8 @@ bedrock rafts, although in some cases could make the predicted bedrock top
 too deep, if units in the bedrock have been misclassified as surficial.}
 }
 \value{
-tibble containing the bedrock depths per well, with 'gicwellid' and
-  '.bedrock_dep' columns.
+data.table containing the bedrock depths per well, with 'gicwellid'
+  and '.bedrock_dep' columns.
 }
 \description{
 This function finds the first occurrence of 'Bedrock' that is below any other
