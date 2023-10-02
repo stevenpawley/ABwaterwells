@@ -26,11 +26,12 @@ pick_bedrock = function(lithologs, response = ".pred_class",
                         option = c("last", "first")) {
   # some checks
   option = match.arg(option)
+
   if (!data.table::is.data.table(lithologs)) {
     lithologs = data.table::as.data.table(lithologs)
   }
 
-  if (!all(unique(lithologs[[response]]) %in% c("Surficial", "Bedrock"))) {
+  if (!all(lithologs[[response]] %in% c("Surficial", "Bedrock"))) {
     stop("Labels in `lithologs` must be either 'Surficial' or 'Bedrock'")
   }
 
@@ -49,7 +50,7 @@ pick_bedrock = function(lithologs, response = ".pred_class",
 
   } else if (option == "first") {
     ypred = lithologs[, .SD[
-      get(response == "Bedrock") & !duplicated(get(response))],
+      get(response) == "Bedrock" & !duplicated(get(response))],
       by = "gicwellid"]
   }
 
