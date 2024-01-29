@@ -295,13 +295,7 @@ query_staticwater <- function(wells, well_reports, pump_tests) {
     dplyr::left_join(wells, well_reports) |>
     dplyr::left_join(pumptests)
 
-  pumptests_agg = pumptests |>
-    dplyr::group_by(.data$gicwellid) |>
-    dplyr::arrange(dplyr::desc(.data$testdate), .by_group = TRUE) |>
-    dplyr::slice(1) |>
-    dplyr::as_tibble()
-
-  return(pumptests_agg)
+  return(pumptests)
 }
 
 add_ground_elevation <- function(logs) {
