@@ -294,7 +294,7 @@ dbAwwid = R6::R6Class(
     #'   "maximum", "minimum").
     #' @return returns a data.table of static water levels.
     query_water_level = function(ext = NULL,
-                                 keep = c("newest", "average", "maximum", "minimum")) {
+                                 keep = c("all", "newest", "average", "maximum", "minimum")) {
       keep_method = match.arg(keep)
 
       # request required tables
@@ -348,6 +348,8 @@ dbAwwid = R6::R6Class(
           ),
           by = "gicwellid"
         ]
+      } else {
+        pumptests_agg = pumptests
       }
 
       return(pumptests_agg)
