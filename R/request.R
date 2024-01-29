@@ -64,8 +64,8 @@ list_awwid <- function() {
 #' @param filter filter query to select rows using REST expressions. The query
 #'   can limit the data using 'eq' in place of 'equal-to', and 'le' in place of
 #'   'less-than', and 'gt' in place of 'greater-than'.
-#' @param select columns to select from the table. By default, all columns will
-#'   be returned.
+#' @param select character vector of columns to select from the table. By
+#'   default, all columns will be returned.
 #' @param top Limit the results using the 'top' rows
 #'
 #' @return a tibble
@@ -73,6 +73,8 @@ list_awwid <- function() {
 #'
 #' @examples
 #' request_awwid("wells", top = 10)
+#'
+#' request_awwid("wells", top = 10, columns = c("gicwellid", "wellid"))
 request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
@@ -92,6 +94,11 @@ request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
       "`name` must be one of {tables}",
       tables = paste(metadata$value$name, collapse = ", ")
     ))
+  }
+
+  if (length(select) > 1) {
+    select <- sort(select)
+    select <- paste(select, collapse = ",")
   }
 
   # build request

@@ -13,8 +13,8 @@ request_awwid(name, filter = NULL, select = NULL, top = NULL)
 can limit the data using 'eq' in place of 'equal-to', and 'le' in place of
 'less-than', and 'gt' in place of 'greater-than'.}
 
-\item{select}{columns to select from the table. By default, all columns will
-be returned.}
+\item{select}{character vector of columns to select from the table. By
+default, all columns will be returned.}
 
 \item{top}{Limit the results using the 'top' rows}
 }
@@ -30,4 +30,6 @@ AWWID can can be obtained through standard REST requests to
 }
 \examples{
 request_awwid("wells", top = 10)
+
+request_awwid("wells", top = 10, columns = c("gicwellid", "wellid"))
 }
