@@ -7,11 +7,16 @@
 query_staticwater(wells, well_reports, pump_tests)
 }
 \arguments{
-\item{wells}{tibble of wells data}
+\item{wells}{tibble of 'wells' data that has been metricated. The only
+columns that are required are c('wellid', 'gicwellid') but usually you
+would also want 'latitude' and 'longitude'.}
 
-\item{well_reports}{tibble of well reports data}
+\item{well_reports}{tibble of 'wellreports' data that has been metricated.
+The required columns are c("wellid", "wellreportid").}
 
-\item{pump_tests}{tibble of pump tests}
+\item{pump_tests}{tibble of 'pumptests' data that has been metricated.
+Columns that are required in the pump tests download are c("wellreportid",
+"staticwaterlevel", "testdate")}
 }
 \value{
 tibble

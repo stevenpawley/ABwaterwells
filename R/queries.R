@@ -239,9 +239,14 @@ query_awwid_screens <-
 
 #' Predefined query to extract a table of static water levels
 #'
-#' @param wells tibble of wells data
-#' @param well_reports tibble of well reports data
-#' @param pump_tests tibble of pump tests
+#' @param wells tibble of 'wells' data that has been metricated. The only
+#'   columns that are required are c('wellid', 'gicwellid') but usually you
+#'   would also want 'latitude' and 'longitude'.
+#' @param well_reports tibble of 'wellreports' data that has been metricated.
+#'   The required columns are c("wellid", "wellreportid").
+#' @param pump_tests tibble of 'pumptests' data that has been metricated.
+#'   Columns that are required in the pump tests download are c("wellreportid",
+#'   "staticwaterlevel", "testdate")
 #'
 #' @return tibble
 #' @export
