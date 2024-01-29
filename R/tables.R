@@ -12,25 +12,23 @@ igpm_to_lpm <- function(x) {
 }
 
 # internal functions ----
-#' @importFrom dplyr mutate across ends_with starts_with contains
-#' @importFrom lubridate as_datetime
 standardize_awwid <- function(x) {
   # set id columns to integer type
   res <- x |>
-    mutate(across(ends_with("id"), as.integer))
+    dplyr::mutate(dplyr::across(dplyr::ends_with("id"), as.integer))
 
   # set datetime columns
   res <- res |>
-    mutate(across(
-      contains(c("date", "time")) &
-        !starts_with("is") &
-        !ends_with("flag"),
-      as_datetime
+    dplyr::mutate(dplyr::across(
+      dplyr::contains(c("date", "time")) &
+        !dplyr::starts_with("is") &
+        !dplyr::ends_with("flag"),
+      lubridate::as_datetime
     ))
 
   # flag columns
   res <- res |>
-    mutate(across(ends_with("flag"), as.logical))
+    dplyr::mutate(dplyr::across(dplyr::ends_with("flag"), as.logical))
 
   return(res)
 }
@@ -196,13 +194,17 @@ metricate.otherseals <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate pumptests
 metricate.pumptests <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of("takenfromtopofcasing"), inch_to_cm)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c("staticwaterlevel", "endwaterlevel", "removaldepthfrom")
-    ), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of("waterremovalrate"), igpm_to_lpm)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of("reasonforshorttest"), as.character))
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(
+      dplyr::across(dplyr::any_of("takenfromtopofcasing"), inch_to_cm),
+      dplyr::across(
+        dplyr::any_of(c("staticwaterlevel", "endwaterlevel", "removaldepthfrom")),
+        ft_to_m
+      ),
+      dplyr::across(dplyr::any_of("waterremovalrate"), igpm_to_lpm),
+      dplyr::across(dplyr::any_of("reasonforshorttest"), as.character)
+    )
 }
 
 #' @export
