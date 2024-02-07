@@ -5,14 +5,22 @@ library(dtplyr)
 library(lubridate)
 library(units)
 library(ggplot2)
+library(stringr)
+library(patchwork)
 
 # query water wells
 wells <-
-  request_awwid("wells", select = c("gicwellid", "wellid", "latitude", "longitude")) |>
+  request_awwid(
+    "wells",
+    select = c("gicwellid", "wellid", "latitude", "longitude")
+  ) |>
   metricate()
 
 reports <-
-  request_awwid("wellreports", select = c("wellid", "wellreportid")) |>
+  request_awwid(
+    "wellreports",
+    select = c("wellid", "wellreportid", "totaldepthdrilled", "drillingmethod")
+  ) |>
   metricate()
 
 pumptests <-
@@ -21,34 +29,20 @@ pumptests <-
 
 dtw <- query_staticwater(wells, reports, pumptests)
 
-# select water wells that have a range of testdates
-dtw <- dtw |>
-  lazy_dt() |>
-  group_by(gicwellid) |>
-  mutate(testrange = max(testdate, na.rm = TRUE) - min(testdate, na.rm = TRUE)) |>
-  ungroup() |>
-  collect()
-
 dtw_m <- dtw |>
   mutate(year = year(testdate)) |>
   drop_na(year) |>
   drop_units()
 
-dtw_yearly <- dtw_m |>
-  group_by(gicwellid, latitude, longitude, year) |>
-  summarise(staticwaterlevel = mean(staticwaterlevel, na.rm = TRUE), .groups = "drop")
-
-# plot maps
-dtw_yearly |>
-  filter(year %in% c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020)) |>
-  ggplot(aes(x = longitude, y = latitude, colour = staticwaterlevel)) +
-  geom_point(size = 0.2) +
-  scale_colour_distiller(palette = "Spectral", trans = "sqrt") +
-  facet_wrap(vars(year)) +
-  guides(colour = guide_colourbar(reverse = TRUE))
-
 dtw_m |>
-  filter(year < 2024, year >= 1940) |>
+  filter(year >= 1940, year <= 2023) |>
+  group_by(year, drillingmethod) |>
+  tally() |>
+  ggplot(aes(year, n, colour = drillingmethod)) +
+  geom_line()
+
+p_dtw <- dtw_m |>
+  filter(year < 2024, year >= 1940, str_detect(tolower(drillingmethod), "rotary")) |>
   group_by(year) |>
   summarize(
     staticwaterlevel = mean(staticwaterlevel, na.rm = TRUE),
@@ -60,4 +54,29 @@ dtw_m |>
   geom_point() +
   scale_y_reverse() +
   ylab("DTW [m]") +
-  xlab("Year")
+  xlab("Year") +
+  theme_minimal()
+
+p_depthdrilled <- dtw_m |>
+  filter(year < 2024, year >= 1940, str_detect(tolower(drillingmethod), "rotary")) |>
+  group_by(year) |>
+  summarize(totaldepthdrilled = mean(totaldepthdrilled, na.rm = TRUE)) |>
+  ungroup() |>
+  ggplot(aes(year, totaldepthdrilled)) +
+  geom_line() +
+  geom_point() +
+  ylab("Total depth drilled [m]") +
+  xlab("Year") +
+  theme_minimal()
+
+(p_dtw / p_depthdrilled)
+
+dtw_m |>
+  filter(year < 2024, year >= 1940, drillingmethod == "Rotary") |>
+  mutate(cluster = kmeans(cbind(latitude, longitude), 10)$cluster) |>
+  ggplot(aes(longitude, latitude, colour = cluster)) +
+  geom_point() +
+  scale_colour_binned(breaks = 1:10, type = "viridis") +
+  coord_map() +
+  theme_minimal()
+
