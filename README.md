@@ -27,50 +27,56 @@ performed in chunks in parallel.
 ``` r
 library(ABwaterwells)
 library(future)
+library(glue)
 plan("multisession")
-
-# create a connection
-con = dbAwwid$new()
-
-# request individual tables
-wells = con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
-#> Loading required namespace: future.apply
-
-reports = con$request(
-  "wellreports", 
-  select = c("wellid", "wellreportid", "totaldepthdrilled")
-)
-
-# the data from these objects is stored in the 'data' field
-head(wells$data)
-#> Key: <gicwellid>
-#>    gicwellid latitude longitude wellid
-#>        <int>    <num>     <num>  <int>
-#> 1:     40000 52.20076 -112.3637  40000
-#> 2:     40001 52.22914 -112.7896  40001
-#> 3:     40002 52.16615 -112.8882  40002
-#> 4:     40003 52.14672 -113.5461  40003
-#> 5:     40004 52.14671 -113.5582  40004
-#> 6:     40005 52.21186 -113.4878  40005
 ```
 
 To view the available tables:
 
 ``` r
-con$tables
-#>  [1] "analysisitems"              "boreholes"                 
-#>  [3] "materialoptions"            "wellcasinglogs"            
-#>  [5] "placementmethodoptions"     "chemicalanalysis"          
-#>  [7] "drillers"                   "drillingcompanies"         
-#>  [9] "elements"                   "geophysicallogs"           
-#> [11] "lithologies"                "otherseals"                
-#> [13] "perforations"               "pumptests"                 
-#> [15] "pumptestitems"              "screens"                   
-#> [17] "wells"                      "unitoptions"               
-#> [19] "plugmaterialoptions"        "casingstatus"              
-#> [21] "wellmaterialslogs"          "welldecommissioningdetails"
-#> [23] "welldecommissioningreasons" "wellowners"                
-#> [25] "wellreports"
+awwid_tables()
+#>  [1] "AnalysisItems"              "Boreholes"                 
+#>  [3] "MaterialOptions"            "WellCasingLogs"            
+#>  [5] "PlacementMethodOptions"     "ChemicalAnalysis"          
+#>  [7] "Drillers"                   "DrillingCompanies"         
+#>  [9] "Elements"                   "GeophysicalLogs"           
+#> [11] "Lithologies"                "OtherSeals"                
+#> [13] "Perforations"               "PumpTests"                 
+#> [15] "PumpTestItems"              "Screens"                   
+#> [17] "Wells"                      "UnitOptions"               
+#> [19] "PlugMaterialOptions"        "CasingStatus"              
+#> [21] "WellMaterialsLogs"          "WellDecommissioningDetails"
+#> [23] "WellDecommissioningReasons" "WellOwners"                
+#> [25] "WellReports"
+```
+
+``` r
+# request individual tables
+wells <- awwid(
+  name = "wells", 
+  select = c("gicwellid", "wellid", "longitude", "latitude"),
+  filter = "gicwellid in (40000, 40001, 40002, 40003)"
+)
+
+reports <- awwid(
+  "wellreports", 
+  select = c("wellid", "wellreportid", "totaldepthdrilled"),
+  filter = "wellreportid in (40000, 40001, 40002, 40003)"
+)
+
+lithologies <- awwid(
+  name = "lithologies",
+  filter = "wellreportid eq 40000 or wellreportid eq 40001"
+)
+
+head(wells)
+#> # A tibble: 4 × 4
+#>   gicwellid latitude longitude wellid
+#>       <int>    <dbl>     <dbl>  <int>
+#> 1     40000     52.2     -112.  40000
+#> 2     40001     52.2     -113.  40001
+#> 3     40002     52.2     -113.  40002
+#> 4     40003     52.1     -114.  40003
 ```
 
 Data in the [Alberta Water Well Information
@@ -80,66 +86,45 @@ automatically convert each table into metric units:
 
 ``` r
 # the 'metricate' method automatically converts fields from each table into metric units
-wells_df = wells$metricate()
-reports_df = reports$metricate()
+lithologies_df <- lithologies |> 
+  metricate()
 
-head(wells_df)
-#>    gicwellid latitude longitude wellid
-#>        <int>    <num>     <num>  <int>
-#> 1:     40000 52.20076 -112.3637  40000
-#> 2:     40001 52.22914 -112.7896  40001
-#> 3:     40002 52.16615 -112.8882  40002
-#> 4:     40003 52.14672 -113.5461  40003
-#> 5:     40004 52.14671 -113.5582  40004
-#> 6:     40005 52.21186 -113.4878  40005
-```
-
-To save on the number of requests, the **ABwaterwells** package
-automatically caching the results of specific requests. This means if a
-request is repeated, the data will be returned almost immediately:
-
-``` r
-con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
-#> Table name: wellsRequest: https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata/wells/?$select=gicwellid,latitude,longitude,wellid
+head(lithologies_df)
+#> # A tibble: 6 × 10
+#>   lithologyid wellreportid lithdepthfrom lithdepthto material  description  
+#>         <int>        <int>           [m]         [m] <chr>     <chr>        
+#> 1    13050069        40000         0           0.305 Topsoil   <NA>         
+#> 2    12743972        40000         0.305       2.44  Till      <NA>         
+#> 3    12856371        40000         2.44        4.27  Clay      <NA>         
+#> 4    12743973        40000         4.27        7.32  Shale     <NA>         
+#> 5    12743974        40000         7.32        8.23  Sandstone Water Bearing
+#> 6    12743975        40000         8.23       13.7   Shale     <NA>         
+#> # ℹ 4 more variables: waterbearing <lgl>, colour <chr>, createtimestamp <dttm>,
+#> #   updatetimestamp <dttm>
 ```
 
 Several predefined queries that perform common processing tasks are also
-included in the package. Caching is used in these queries so that
-previous requests, for example, to the wells table, do not get performed
-repeatedly:
+included in the package:
 
 ``` r
-lithologs = con$query_lithologs()
-#> requesting `wells` table
-#> requesting `wellreports` table
-#> requesting `lithologies` table
-screens = con$query_screens()
-#> requesting `wells` table
-#> requesting `wellreports` table
-#> requesting `screens` table
-#> requesting `perforations` table
-waterlevel = con$query_water_level()
-#> Requesting `wells` table
-#> Requesting `pumptests` table
-#> Requesting `wellreports` table
-```
-
-``` r
-head(lithologs)
-#>    gicwellid longitude latitude  gr_elev bh_depth location_type location_source
-#>        <int>     <num>    <num>    <num>    <num>        <fctr>          <fctr>
-#> 1:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#> 2:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#> 3:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#> 4:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#> 5:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#> 6:     40000 -112.3637 52.20076 831.7263   59.436          Well   Aenv database
-#>    int_top_dep int_bot_dep  material material_desc colour waterbearing
-#>          <num>       <num>    <char>        <char> <char>       <lgcl>
-#> 1:      0.0000      0.3048   Topsoil          <NA>   <NA>        FALSE
-#> 2:      0.3048      2.4384      Till          <NA>  Brown        FALSE
-#> 3:      2.4384      4.2672      Clay          <NA>   Gray        FALSE
-#> 4:      4.2672      7.3152     Shale          <NA>   Gray        FALSE
-#> 5:      7.3152      8.2296 Sandstone Water Bearing   <NA>         TRUE
-#> 6:      8.2296     13.7160     Shale          <NA>   Gray        FALSE
+lithologs <- query_lithologs(wells, reports, lithologies_df)
+#> Warning: [extract] transforming vector data to the CRS of the raster
+lithologs
+#> # A tibble: 35 × 14
+#>    gicwellid longitude latitude gr_elev bh_depth well_type location_type
+#>        <int>     <dbl>    <dbl>   <dbl>    <dbl> <fct>     <fct>        
+#>  1     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  2     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  3     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  4     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  5     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  6     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  7     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  8     40000     -112.     52.2    832.      195 Vertical  Well         
+#>  9     40000     -112.     52.2    832.      195 Vertical  Well         
+#> 10     40000     -112.     52.2    832.      195 Vertical  Well         
+#> # ℹ 25 more rows
+#> # ℹ 7 more variables: location_source <fct>, int_top_dep <dbl>,
+#> #   int_bot_dep <dbl>, material <chr>, material_desc <chr>, colour <chr>,
+#> #   waterbearing <lgl>
 ```

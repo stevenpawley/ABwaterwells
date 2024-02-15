@@ -38,7 +38,7 @@ get_query <- function(url, query, skip = NULL, top = NULL) {
 #'
 #' @examples
 #' list_awwid()
-list_awwid <- function() {
+awwid_tables <- function() {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
@@ -72,26 +72,28 @@ list_awwid <- function() {
 #' @export
 #'
 #' @examples
-#' request_awwid("wells", top = 10)
+#' awwid("wells", top = 10)
 #'
-#' request_awwid("wells", top = 10, columns = c("gicwellid", "wellid"))
-request_awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
+#' awwid("wells", top = 10, columns = c("gicwellid", "wellid"))
+awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
   # some checks
-  metadata <- url |>
-    httr2::request() |>
-    httr2::req_retry(max_tries = 10) |>
-    httr2::req_perform()
-
-  metadata <- metadata |>
-    httr2::resp_body_string() |>
-    jsonlite::fromJSON()
-
-  if (!tolower(name) %in% tolower(metadata$value$name)) {
+  if (!tolower(name) %in% names(metadata)) {
     rlang::abort(glue::glue(
       "`name` must be one of {tables}",
+      tables = paste(metadata$value$name, collapse = ", ")
+    ))
+  }
+
+  if (!all(select %in% metadata[[name]]$attributes)) {
+    incorrect_cols <- select[!select %in% metadata[[name]]$attributes]
+    incorrect_cols <- glue::glue("'{incorrect_cols}'")
+    incorrect_cols <- paste(incorrect_cols, collapse = ", ")
+
+    rlang::abort(glue::glue(
+      "The column(s) {incorrect_cols} that are specified in `select` are not present in {name}",
       tables = paste(metadata$value$name, collapse = ", ")
     ))
   }

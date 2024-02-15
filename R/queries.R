@@ -8,7 +8,7 @@
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
-query_awwid_lithologs <- function(wells, well_reports, lithologies) {
+query_lithologs <- function(wells, well_reports, lithologies) {
   # check the required columns are present
   check_wells <-
     c("gicwellid", "wellid", "longitude", "latitude") %in% names(wells)
@@ -153,7 +153,7 @@ query_awwid_lithologs <- function(wells, well_reports, lithologies) {
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
-query_awwid_screens <-
+query_screens <-
   function(
     wells,
     wells_reports,
