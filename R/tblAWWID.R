@@ -28,11 +28,9 @@ tblAwwid = R6::R6Class(
 
     #' @description
     #' Print method for the 'tblAwwid' class
-    print = function() {
-      cat("Table name:", self$name)
-      cat("Request:", self$request)
-      head(self$data)
-      invisible(NULL)
+    print = function(...) {
+      print(head(self$data))
+      invisible(self)
     },
 
     #' @description

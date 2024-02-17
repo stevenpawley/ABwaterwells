@@ -43,15 +43,20 @@ plan("multisession")
 con = dbAwwid$new()
 
 # request individual tables
-wells = con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
+wells = con$request(
+  "wells", 
+  select = c("gicwellid", "wellid", "longitude", "latitude"),
+  filter = "gicwellid in (40000, 40001, 40002)"
+)
 
 reports = con$request(
   "wellreports", 
-  select = c("wellid", "wellreportid", "totaldepthdrilled")
+  select = c("wellid", "wellreportid", "totaldepthdrilled"),
+  filter = "wellreportid in (40000, 40001, 40002)"
 )
 
 # the data from these objects is stored in the 'data' field
-head(wells$data)
+head(reports$data)
 ```
 
 To view the available tables:
@@ -67,13 +72,17 @@ Data in the [Alberta Water Well Information Database](https://www.alberta.ca/alb
 wells_df = wells$metricate()
 reports_df = reports$metricate()
 
-head(wells_df)
+head(reports_df)
 ```
 
 To save on the number of requests, the **ABwaterwells** package automatically caching the results of specific requests. This means if a request is repeated, the data will be returned almost immediately:
 
 ```{r caching}
-con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
+con$request(
+  "wells",
+  select = c("gicwellid", "wellid", "longitude", "latitude"),
+  filter = "gicwellid in (40000, 40001, 40002)"
+)
 ```
 
 Several predefined queries that perform common processing tasks are also included in the package. Caching is used in these queries so that previous requests, for example, to the wells table, do not get performed repeatedly:
