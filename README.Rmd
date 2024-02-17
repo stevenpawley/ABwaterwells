@@ -67,7 +67,7 @@ lithologies <- awwid(
   filter = "wellreportid eq 40000 or wellreportid eq 40001"
 )
 
-head(wells)
+head(lithologies)
 ```
 
 Data in the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) is stored in imperial units. The `metricate` method can be used to automatically convert each table into metric units:

@@ -8,12 +8,15 @@
 query_lithologs(wells, well_reports, lithologies)
 }
 \arguments{
-\item{wells}{tibble of the 'wells' table from AWWID}
+\item{wells}{tibble of the 'wells' table from AWWID. The 'gicwellid',
+'wellid', 'longitude', and 'latitude' columns have to be present.}
 
 \item{well_reports}{tibble of the 'wellreports' table from AWWID. Only the
 columns 'wellreportid', 'wellid', and 'totaldepthdrilled' are required.}
 
-\item{lithologies}{tibble of the 'lithologies' table from AWWID}
+\item{lithologies}{tibble of the 'lithologies' table from AWWID. The
+'wellreportid', 'material', 'description', 'lithdepthfrom', 'lithdepthto',
+'colour', 'waterbearing' columns are required.}
 }
 \value{
 tibble of processed AWWID litholog data

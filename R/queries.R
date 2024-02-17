@@ -1,10 +1,13 @@
 #' Predefined query to extract lithologs from the AWWID 'wells' and
 #' 'lithologies' tables
 #'
-#' @param wells tibble of the 'wells' table from AWWID
+#' @param wells tibble of the 'wells' table from AWWID. The 'gicwellid',
+#'   'wellid', 'longitude', and 'latitude' columns have to be present.
 #' @param well_reports tibble of the 'wellreports' table from AWWID. Only the
 #'   columns 'wellreportid', 'wellid', and 'totaldepthdrilled' are required.
-#' @param lithologies tibble of the 'lithologies' table from AWWID
+#' @param lithologies tibble of the 'lithologies' table from AWWID. The
+#'   'wellreportid', 'material', 'description', 'lithdepthfrom', 'lithdepthto',
+#'   'colour', 'waterbearing' columns are required.
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
