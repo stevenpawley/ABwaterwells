@@ -33,25 +33,26 @@ plan("multisession")
 con = dbAwwid$new()
 
 # request individual tables
-wells = con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
-#> Loading required namespace: future.apply
+wells = con$request(
+  "wells", 
+  select = c("gicwellid", "wellid", "longitude", "latitude"),
+  filter = "gicwellid in (40000, 40001, 40002)"
+)
 
 reports = con$request(
   "wellreports", 
-  select = c("wellid", "wellreportid", "totaldepthdrilled")
+  select = c("wellid", "wellreportid", "totaldepthdrilled"),
+  filter = "wellreportid in (40000, 40001, 40002)"
 )
 
 # the data from these objects is stored in the 'data' field
-head(wells$data)
-#> Key: <gicwellid>
-#>    gicwellid latitude longitude wellid
-#>        <int>    <num>     <num>  <int>
-#> 1:     40000 52.20076 -112.3637  40000
-#> 2:     40001 52.22914 -112.7896  40001
-#> 3:     40002 52.16615 -112.8882  40002
-#> 4:     40003 52.14672 -113.5461  40003
-#> 5:     40004 52.14671 -113.5582  40004
-#> 6:     40005 52.21186 -113.4878  40005
+head(reports$data)
+#> Key: <totaldepthdrilled>
+#>    totaldepthdrilled wellid wellreportid
+#>                <num>  <int>        <int>
+#> 1:               149  40001        40001
+#> 2:               195  40000        40000
+#> 3:               268  40002        40002
 ```
 
 To view the available tables:
@@ -83,15 +84,12 @@ automatically convert each table into metric units:
 wells_df = wells$metricate()
 reports_df = reports$metricate()
 
-head(wells_df)
-#>    gicwellid latitude longitude wellid
-#>        <int>    <num>     <num>  <int>
-#> 1:     40000 52.20076 -112.3637  40000
-#> 2:     40001 52.22914 -112.7896  40001
-#> 3:     40002 52.16615 -112.8882  40002
-#> 4:     40003 52.14672 -113.5461  40003
-#> 5:     40004 52.14671 -113.5582  40004
-#> 6:     40005 52.21186 -113.4878  40005
+head(reports_df)
+#>    totaldepthdrilled wellid wellreportid
+#>              <units>  <int>        <int>
+#> 1:       45.4152 [m]  40001        40001
+#> 2:       59.4360 [m]  40000        40000
+#> 3:       81.6864 [m]  40002        40002
 ```
 
 To save on the number of requests, the **ABwaterwells** package
@@ -99,8 +97,17 @@ automatically caching the results of specific requests. This means if a
 request is repeated, the data will be returned almost immediately:
 
 ``` r
-con$request("wells", select = c("gicwellid", "wellid", "longitude", "latitude"))
-#> Table name: wellsRequest: https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata/wells/?$select=gicwellid,latitude,longitude,wellid
+con$request(
+  "wells",
+  select = c("gicwellid", "wellid", "longitude", "latitude"),
+  filter = "gicwellid in (40000, 40001, 40002)"
+)
+#> Key: <gicwellid>
+#>    gicwellid latitude longitude wellid
+#>        <int>    <num>     <num>  <int>
+#> 1:     40000 52.20076 -112.3637  40000
+#> 2:     40001 52.22914 -112.7896  40001
+#> 3:     40002 52.16615 -112.8882  40002
 ```
 
 Several predefined queries that perform common processing tasks are also
@@ -111,8 +118,64 @@ repeatedly:
 ``` r
 lithologs = con$query_lithologs()
 #> requesting `wells` table
+#> Loading required namespace: future.apply
 #> requesting `wellreports` table
 #> requesting `lithologies` table
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> Waiting 10s to retry ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 screens = con$query_screens()
 #> requesting `wells` table
 #> requesting `wellreports` table
