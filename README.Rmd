@@ -53,18 +53,18 @@ awwid_tables()
 wells <- awwid(
   name = "wells", 
   select = c("gicwellid", "wellid", "longitude", "latitude"),
-  filter = "gicwellid in (40000, 40001, 40002, 40003)"
+  filter = "gicwellid gt 40000 and gicwellid lt 41000"
 )
 
 reports <- awwid(
   "wellreports", 
   select = c("wellid", "wellreportid", "totaldepthdrilled"),
-  filter = "wellreportid in (40000, 40001, 40002, 40003)"
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )
 
 lithologies <- awwid(
   name = "lithologies",
-  filter = "wellreportid eq 40000 or wellreportid eq 40001"
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )
 
 head(lithologies)

@@ -55,28 +55,31 @@ awwid_tables()
 wells <- awwid(
   name = "wells", 
   select = c("gicwellid", "wellid", "longitude", "latitude"),
-  filter = "gicwellid in (40000, 40001, 40002, 40003)"
+  filter = "gicwellid gt 40000 and gicwellid lt 41000"
 )
 
 reports <- awwid(
   "wellreports", 
   select = c("wellid", "wellreportid", "totaldepthdrilled"),
-  filter = "wellreportid in (40000, 40001, 40002, 40003)"
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )
 
 lithologies <- awwid(
   name = "lithologies",
-  filter = "wellreportid eq 40000 or wellreportid eq 40001"
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )
 
-head(wells)
-#> # A tibble: 4 × 4
-#>   gicwellid latitude longitude wellid
-#>       <int>    <dbl>     <dbl>  <int>
-#> 1     40000     52.2     -112.  40000
-#> 2     40001     52.2     -113.  40001
-#> 3     40002     52.2     -113.  40002
-#> 4     40003     52.1     -114.  40003
+head(lithologies)
+#> # A tibble: 6 × 9
+#>   lithologyid wellreportid depth waterbearing colour material description   
+#>         <int>        <int> <dbl>        <int> <chr>  <chr>    <chr>         
+#> 1    12729337        40914   219            0 Gray   Till     Stoney        
+#> 2    12729338        40914   229            0 <NA>   Gravel   Dirty         
+#> 3    12729339        40914   260            0 Gray   Till     Stoney        
+#> 4    12729340        40914   274            0 <NA>   Sand     Coarse Grained
+#> 5    12729341        40915    65            0 Gray   Till     Soft          
+#> 6    12729342        40915    85            0 <NA>   Sand     Dirty         
+#> # ℹ 2 more variables: createtimestamp <chr>, updatetimestamp <chr>
 ```
 
 Data in the [Alberta Water Well Information
@@ -91,14 +94,14 @@ lithologies_df <- lithologies |>
 
 head(lithologies_df)
 #> # A tibble: 6 × 10
-#>   lithologyid wellreportid lithdepthfrom lithdepthto material  description  
-#>         <int>        <int>           [m]         [m] <chr>     <chr>        
-#> 1    13050069        40000         0           0.305 Topsoil   <NA>         
-#> 2    12743972        40000         0.305       2.44  Till      <NA>         
-#> 3    12856371        40000         2.44        4.27  Clay      <NA>         
-#> 4    12743973        40000         4.27        7.32  Shale     <NA>         
-#> 5    12743974        40000         7.32        8.23  Sandstone Water Bearing
-#> 6    12743975        40000         8.23       13.7   Shale     <NA>         
+#>   lithologyid wellreportid lithdepthfrom lithdepthto material description
+#>         <int>        <int>           [m]         [m] <chr>    <chr>      
+#> 1    12743989        40001         0           0.305 Topsoil  <NA>       
+#> 2    12856372        40001         0.305       6.71  Till     <NA>       
+#> 3    12743990        40001         6.71        7.62  Till     <NA>       
+#> 4    12743991        40001         7.62       22.3   Shale    <NA>       
+#> 5    12743992        40001        22.3        24.1   Shale    <NA>       
+#> 6    12743993        40001        24.1        25.6   Shale    <NA>       
 #> # ℹ 4 more variables: waterbearing <lgl>, colour <chr>, createtimestamp <dttm>,
 #> #   updatetimestamp <dttm>
 ```
@@ -110,20 +113,20 @@ included in the package:
 lithologs <- query_lithologs(wells, reports, lithologies_df)
 #> Warning: [extract] transforming vector data to the CRS of the raster
 lithologs
-#> # A tibble: 35 × 14
+#> # A tibble: 8,888 × 14
 #>    gicwellid longitude latitude gr_elev bh_depth well_type location_type
 #>        <int>     <dbl>    <dbl>   <dbl>    <dbl> <fct>     <fct>        
-#>  1     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  2     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  3     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  4     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  5     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  6     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  7     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  8     40000     -112.     52.2    832.      195 Vertical  Well         
-#>  9     40000     -112.     52.2    832.      195 Vertical  Well         
-#> 10     40000     -112.     52.2    832.      195 Vertical  Well         
-#> # ℹ 25 more rows
+#>  1     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  2     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  3     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  4     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  5     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  6     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  7     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  8     40001     -113.     52.2    845.      149 Vertical  Well         
+#>  9     40001     -113.     52.2    845.      149 Vertical  Well         
+#> 10     40001     -113.     52.2    845.      149 Vertical  Well         
+#> # ℹ 8,878 more rows
 #> # ℹ 7 more variables: location_source <fct>, int_top_dep <dbl>,
 #> #   int_bot_dep <dbl>, material <chr>, material_desc <chr>, colour <chr>,
 #> #   waterbearing <lgl>
