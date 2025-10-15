@@ -155,8 +155,8 @@ dbAwwid = R6::R6Class(
       awwid = awwid[, .SD, .SDcols = -todrop]
 
       # rename columns
-      awwid[get("material") == "", c("material") := NA_character_]
-      awwid[get("description") == "", c("description") := NA_character_]
+      awwid[material == "", c("material") := NA_character_, env = list(material = "material")]
+      awwid[description == "", c("description") := NA_character_, env = list(description = "description")]
 
       rename = c(
         int_top_dep = "lithdepthfrom",
@@ -231,10 +231,10 @@ dbAwwid = R6::R6Class(
       perf_cols = c("perforationid", "from", "to", "wellreportid")
       perfs = self$request("perforations", select = perf_cols)$metricate()
 
-      # create a lookup table to relate gicwellid to the wellreportid
-      linking = merge(reports, wells, by = "wellid")
-      linking = linking[, .SD, .SDcols = c("wellid", "wellreportid", "gicwellid",
-                                           "latitude", "longitude")]
+      # relate gicwellid to the wellreportid
+      wells_reports = merge(reports, wells, by = "wellid")
+      selected_cols = c("wellid", "wellreportid", "gicwellid", "latitude", "longitude")
+      wells_reports = wells_reports[, .SD, .SDcols = selected_cols]
 
       # combine the perforations and screens
       perfs_gicwellid = merge(perfs, linking, by = "wellreportid")
@@ -250,18 +250,31 @@ dbAwwid = R6::R6Class(
       # aggregate the maximum depth range of screens/perfs for each well
       screens_avg = screens_perfs[
         order(screendepthfrom),
-        .(wellreportid = data.table::first(get("wellreportid")),
-          screendepthfrom = min(get("screendepthfrom"), na.rm = TRUE),
-          screendepthto = max(get("screendepthto"), na.rm = TRUE),
-          latitude = data.table::first(get("latitude")),
-          longitude = data.table::first(get("longitude"))
+        .(wellreportid = data.table::first(wellreportid),
+          screendepthfrom = min(screendepthfrom, na.rm = TRUE),
+          screendepthto = max(screendepthto, na.rm = TRUE),
+          latitude = data.table::first(latitude),
+          longitude = data.table::first(longitude)
         ),
-        by = "gicwellid"
+        by = "gicwellid",
+        env = list(
+          wellreportid = "wellreportid",
+          screendepthfrom = "screendepthfrom",
+          screendepthto = "screendepthto",
+          latitude = "latitude",
+          longitude = "longitude"
+        )
       ]
 
       # calculate the screen depth mid-point
-      screens_avg[, "screendepthmid" :=
-                    get("screendepthfrom") + (get("screendepthto") - get("screendepthfrom")) / 2]
+      screens_avg[,
+        "screendepthmid" := screendepthfrom + (screendepthto - screendepthfrom) / 2,
+        env = list(
+          screendepthmid = "screendepthmid",
+          screendepthfrom = "screendepthfrom",
+          screendepthto = "screendepthto"
+        )
+      ]
       return(screens_avg)
     },
 
@@ -318,7 +331,7 @@ dbAwwid = R6::R6Class(
       pumptests = wellindex[pump_tests]
 
       # aggregate multiple pump tests
-      pumptests = pumptests[, .SD[order(get("testdate"))], by = "gicwellid"]
+      pumptests = pumptests[, .SD[order(testdate)], by = "gicwellid", env = list(testdate = "testdate")]
 
       if (keep_method == "newest") {
         pumptests_agg = pumptests[, data.table::first(.SD), by = "gicwellid"]
@@ -418,8 +431,7 @@ dbAwwid = R6::R6Class(
       v = terra::project(v, "epsg:3402")
       v$x = terra::crds(v)[, 1]
       v$y = terra::crds(v)[, 2]
-      v = v |>
-        as.data.frame() |>
+      v = as.data.frame(v) |>
         data.table::as.data.table()
 
       log_crds = v[, .SD, .SDcols = c("x", "y")]

@@ -42,16 +42,24 @@ pick_bedrock = function(lithologs, response = ".pred_class",
 
     # take the top of the next interval beneath any surficial as the bedrock top
     ypred = max_surf[lithologs, on = "gicwellid"]
-    ypred = ypred[, .SD[
-      (get("int_top_dep") > get("minv") | is.na(get("minv"))) &
-        (get(response) == "Bedrock"),
-    ], by = "gicwellid"]
+
+    ypred = ypred[, 
+      .SD[
+        (int_top_dep > minv | is.na(minv)) &
+        (response == "Bedrock"),
+      ],
+      by = "gicwellid",
+      env = list(minv = "minv", int_top_dep = "int_top_dep")
+    ]
+
     ypred = ypred[, .SD[1], by = "gicwellid"]
 
   } else if (option == "first") {
     ypred = lithologs[, .SD[
-      get(response) == "Bedrock" & !duplicated(get(response))],
-      by = "gicwellid"]
+      response == "Bedrock" & !duplicated(response)],
+      by = "gicwellid",
+      env = list(response = "response")
+    ]
   }
 
   data.table::setnames(ypred, "int_top_dep", ".bedrock_dep")

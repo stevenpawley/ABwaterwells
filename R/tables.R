@@ -64,19 +64,26 @@ tblAwwid = R6::R6Class(
   ),
 
   private = list(
-    ft_to_m = function(x) units::as_units(x * 0.3048, "m"),
-    inch_to_cm = function(x) units::as_units(x * 2.54, "cm"),
-    igpm_to_lpm = function(x) units::as_units(x * 4.54609, "L/m"),
+    ft_to_m = function(x) {
+      units::as_units(x * 0.3048, "m")
+    },
+
+    inch_to_cm = function(x) {
+      units::as_units(x * 2.54, "cm")
+    },
+
+    igpm_to_lpm = function(x) {
+      units::as_units(x * 4.54609, "L/m")
+    },
 
     metricate_default = function(x) {
-      # take copy
       x = data.table::copy(x)
 
-      # set id columns to integer type
+      # set any "id" columns to integer type
       cols = which(endsWith(names(x), "id"))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
 
-      # datetime columns
+      # coerce columns matching "date" or "time" to POSIXct
       cols = grep("date|time", names(x))
       exclude = which(startsWith(names(x), "is"))
       exclude = c(exclude, which(endsWith(names(x), "flag")))
@@ -85,64 +92,69 @@ tblAwwid = R6::R6Class(
         data.table::set(x, j = j, value = as.POSIXct(x[[j]], tz = "America/Edmonton"))
       }
 
-      # flag columns
+      # coerce "flag" columns to logical
       cols = which(endsWith(names(x), "flag"))
       for (j in cols) data.table::set(x, j = j, value = as.logical(x[[j]]))
+      
       return(x)
     },
 
     metricate_analysisitems = function(x) {
+      # set value columns to numeric
       cols = grep("value", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.numeric(x[[j]]))
       return(x)
     },
 
     metricate_boreholes = function(x) {
-      # inches to cm columns
+      # convert inches to cm columns
       cols = grep("diameter", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$inch_to_cm(x[[j]]))
 
-      # feet to metres columns
+      # convert feet to metres columns
       cols = grep("from|to", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
       # rename columns to avoid collisions
       rename = c(boreholedepthfrom = "from", boreholedepthto = "to")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
+      
       return(x)
     },
 
     metricate_wellcasinglogs = function(x, ...) {
-      # feet to metres columns
+      # convert feet to metres columns
       cols = grep("fromdepth|todepth", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
-      # inches to cm columns
+      # convert inches to cm columns
       cols = grep("diameter", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$inch_to_cm(x[[j]]))
 
-      # logical columns
+      # coerce logical columns
       cols = grep("othermaterials", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.logical(x[[j]]))
 
-      # rename columns
+      # rename columns to avoid collisions
       rename = c(
         wellcasingdepthfrom = "fromdepth",
         wellcasingdepthto = "todepth",
         wellcasingdiameter = "diameter"
       )
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
+      
       return(x)
     },
 
     metricate_chemicalanalysis = function(x) {
-      # ft to metres
+      # convert ft to metres
       cols = grep("waterlevel", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
-      # set to character type
+      # force other columns to character type
       cols = grep("aquifer|remarks", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.character(x[[j]]))
+      
       return(x)
     },
 
@@ -150,6 +162,7 @@ tblAwwid = R6::R6Class(
       # set lastwellidused to integer
       cols = grep("lastwellidused", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
+      
       return(x)
     },
 
@@ -157,6 +170,7 @@ tblAwwid = R6::R6Class(
       # set decimalplaces to integer
       cols = grep("decimalplaces", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
+      
       return(x)
     },
 
@@ -176,15 +190,20 @@ tblAwwid = R6::R6Class(
       data.table::setnames(x, "depth", "lithdepthto")
 
       # sort each log by depth
-      x = x[order(get("lithdepthto")), .SD, by = "wellreportid"]
+      x = x[order(lithdepthto), .SD, by = "wellreportid", env = list(lithdepthto = "lithdepthto")]
 
       # calculate int_top_dep
-      # awwid depth intervals represent 'to_depth', so the first row records
+      # awwid depth intervals represent 'to_depth'; the first row records
       # the bottom depth of the uppermost unit
-      x[, c("lithdepthfrom") := data.table::shift(
-        get("lithdepthto"), n = 1, type = "lag", fill = 0.0),
-        by = "wellreportid"]
 
+      # create lithdepthfrom column by shifting lithdepthto down one row
+      x[, 
+        c("lithdepthfrom") := data.table::shift(lithdepthto, n = 1, type = "lag", fill = 0.0),
+        by = "wellreportid",
+        env = list(lithdepthto = "lithdepthto")
+      ]
+
+      # reorder and clean columns
       cols = c(
         "lithologyid",
         "wellreportid",
@@ -197,28 +216,33 @@ tblAwwid = R6::R6Class(
         "createtimestamp",
         "updatetimestamp"
       )
-
       cols = intersect(cols, names(x))
       x = x[, .SD, .SDcols = cols]
-      x[get("material") == "", c("material") := NA_character_]
-      x[, c("material") := stringr::str_squish(get("material"))]
-      x[get("description") == "", c("description") := NA_character_]
+
+      # clean text fields
+      x[material == "", c("material") := NA_character_, env = list(material = "material")]
+      x[, c("material") := stringr::str_squish(material), env = list(material = "material")]
+      x[description == "", c("description") := NA_character_, env = list(description = "description")]
+      
       return(x)
     },
 
     metricate_otherseals = function(x) {
+      # convert feet to metres except for date/time columns
       cols = grep("from|to|at", names(x))
       exclude = grep("date|time", names(x))
       cols = setdiff(cols, exclude)
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
-      rename = c(sealdepthfrom = "from", sealdepthto = "to",
-                 sealotherdepth = "at")
+      # rename columns to avoid collisions
+      rename = c(sealdepthfrom = "from", sealdepthto = "to", sealotherdepth = "at")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
+      
       return(x)
     },
 
     metricate_pumptests = function(x) {
+      # convert imperial units to metric
       cols = grep("takenfromtopofcasing", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$inch_to_cm(x[[j]]))
 
@@ -228,37 +252,46 @@ tblAwwid = R6::R6Class(
       cols = grep("waterremovalrate", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$igpm_to_lpm(x[[j]]))
 
+      # ensure text columns are character type
       cols = grep("reasonforshorttest", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.character(x[[j]]))
+      
       return(x)
     },
 
     metricate_pumptestitems = function(x) {
+      # ensure minutes (pump test duration) columns are integer type
       cols = grep("minutes", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
 
+      # convert feet to metres
       cols = grep("pumpingdepth|recoverydepth", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
+      
       return(x)
     },
 
     metricate_screens = function(x) {
+      # text columns
       cols = grep("screentype", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.character(x[[j]]))
 
+      # integer columns
       cols = grep("minutes", names(x))
       for (j in cols) data.table::set(x, j = j, value = as.integer(x[[j]]))
 
+      # feet to metres
       cols = grep("from|to", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$ft_to_m(x[[j]]))
 
+      # inches to cm
       cols = grep("slotsize|screeninsidediameter", names(x))
       for (j in cols) data.table::set(x, j = j, value = private$inch_to_cm(x[[j]]))
 
-      # rename
-      rename = c(screendepthfrom = "from", screendepthto = "to",
-                 screenslotsize = "slotsize")
+      # rename columns to avoid collisions
+      rename = c(screendepthfrom = "from", screendepthto = "to", screenslotsize = "slotsize")
       data.table::setnames(x, rename, names(rename), skip_absent = TRUE)
+      
       return(x)
     },
 
@@ -280,27 +313,51 @@ tblAwwid = R6::R6Class(
 
       # cleaning
       if ("goawelltagnumber" %in% names(x)) {
-        x[get("goawelltagnumber") == "", c("goawelltagnumber") := NA_character_]
+        x[
+          goawelltagnumber == "", 
+          c("goawelltagnumber") := NA_character_, 
+          env = list(goawelltagnumber = "goawelltagnumber")
+        ]
       }
 
       if ("boundaryfrom" %in% names(x)) {
-        x[get("boundaryfrom") == "", c("boundaryfrom") := NA_character_]
+        x[
+          boundaryfrom == "", 
+          c("boundaryfrom") := NA_character_,
+          env = list(boundaryfrom = "boundaryfrom")
+        ]
       }
 
       if ("lot" %in% names(x)) {
-        x[get("lot") == "", c("lot") := NA_character_]
+        x[
+          lot == "", 
+          c("lot") := NA_character_,
+          env = list(lot = "lot")
+        ]
       }
 
       if ("block" %in% names(x)) {
-        x[get("block") == "", c("block") := NA_character_]
+        x[
+          block == "", 
+          c("block") := NA_character_,
+          env = list(block = "block")
+        ]
       }
 
       if ("plan" %in% names(x)) {
-        x[get("plan") == "", c("plan") := NA_character_]
+        x[
+          plan == "", c
+          ("plan") := NA_character_,
+          env = list(plan = "plan")
+        ]
       }
 
       if ("additionaldescription" %in% names(x)) {
-        x[get("additionaldescription") == "", c("additionaldescription") := NA_character_]
+        x[
+          additionaldescription == "", 
+          c("additionaldescription") := NA_character_,
+          env = list(additionaldescription = "additionaldescription")
+        ]
       }
       return(x)
     },

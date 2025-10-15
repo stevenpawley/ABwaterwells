@@ -34,7 +34,12 @@ allocate = function(lithologs, screens, model) {
   screens_picked = screens |>
     units::drop_units() |>
     merge(predicted_picks, by = "gicwellid", all.x = TRUE)
-  screens_picked[is.na(get("litholog_present")), "litholog_present" := FALSE]
+  
+  screens_picked[
+    is.na(litholog_present), 
+    "litholog_present" := FALSE, 
+    env = list(litholog_present = "litholog_present")
+  ]
 
   # extract missing values from interpolated surface
   board_ags = pins::board_url(c(dtb = "https://static.ags.aer.ca/files/document/DIG/DIG_2023_0014.zip"))
@@ -54,36 +59,59 @@ allocate = function(lithologs, screens, model) {
     data.table::as.data.table()
 
   screens_picked_df[, "bedrock_dep_source" := data.table::fifelse(get("litholog_present") == TRUE, "nlp", "interpolation")]
-  screens_picked_df[get("litholog_present") == FALSE, "bedrock_dep" := get("dtb")]
+  screens_picked_df[litholog_present == FALSE, "bedrock_dep" := dtb, env = list(dtb = "dtb")]
 
   # allocated each completion interval to surficial or bedrock
   screens_completions = data.table::copy(screens_picked_df)
-  screens_completions[, "screen_thickness" := get("screendepthto") - get("screendepthfrom")]
+  
+  screens_completions[,
+    "screen_thickness" := screendepthto - screendepthfrom, 
+    env = list(screendepthto = "screendepthto", screendepthfrom = "screendepthfrom")
+  ]
 
-  screens_completions[, "completed_top" := data.table::fifelse(
-    get("screendepthfrom") < get("bedrock_dep") | is.na(get("bedrock_dep")),
-    "surficial",
-    "bedrock"
-  )]
-  screens_completions[, "completed_bot" := data.table::fifelse(
-    get("screendepthto") <= get("bedrock_dep") | is.na(get("bedrock_dep")),
-    "surficial",
-    "bedrock"
-  )]
+  screens_completions[, 
+    "completed_top" := data.table::fifelse(
+      screendepthfrom < bedrock_dep | is.na(bedrock_dep),
+      "surficial",
+      "bedrock"
+    ),
+    env = list(screendepthfrom = "screendepthfrom", bedrock_dep = "bedrock_dep")
+  ]
 
-  screens_completions[, "surficial_thickness" := data.table::fifelse(
-    get("bedrock_dep") - get("screendepthfrom") > 0,
-    get("bedrock_dep") - get("screendepthfrom"), 0
-  )]
+  screens_completions[, 
+    "completed_bot" := data.table::fifelse(
+      screendepthto <= bedrock_dep | is.na(bedrock_dep),
+      "surficial",
+      "bedrock"
+    ),
+    env = list(screendepthto = "screendepthto", bedrock_dep = "bedrock_dep")
+  ]
 
-  screens_completions[, "bedrock_thickness" := data.table::fifelse(
-    get("screendepthto") - get("bedrock_dep") > 0,
-    get("screendepthto") - get("bedrock_dep"), 0
-  )]
+  screens_completions[, 
+    "surficial_thickness" := data.table::fifelse(
+      bedrock_dep - screendepthfrom > 0,
+      bedrock_dep - screendepthfrom, 0
+    ),
+    env = list(bedrock_dep = "bedrock_dep", screendepthfrom = "screendepthfrom")
+  ]
 
-  screens_completions[, c("screen_thickness", "surficial_thickness", "bedrock_thickness") := NULL]
-  screens_completions = screens[, .SD, .SDcols = c("gicwellid", "latitude", "longitude")][
-    screens_completions, on = "gicwellid"]
+  screens_completions[, 
+    "bedrock_thickness" := data.table::fifelse(
+      screendepthto - bedrock_dep > 0,
+      screendepthto - bedrock_dep, 0
+    ),
+    env = list(screendepthto = "screendepthto", bedrock_dep = "bedrock_dep")
+  ]
+
+  screens_completions[
+    , 
+    c("screen_thickness", "surficial_thickness", "bedrock_thickness") := NULL
+  ]
+  
+  screens_completions = screens[,
+    .SD,
+    .SDcols = c("gicwellid", "latitude", "longitude")
+  ][screens_completions, on = "gicwellid"]
 
   return(screens_completions)
 }
