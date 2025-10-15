@@ -50,19 +50,19 @@ awwid_tables()
 
 ```{r example-1}
 # request individual tables
-wells <- awwid(
+wells <- awwid_tbl(
   name = "wells", 
   select = c("gicwellid", "wellid", "longitude", "latitude"),
   filter = "gicwellid gt 40000 and gicwellid lt 41000"
 )
 
-reports <- awwid(
+reports <- awwid_tbl(
   "wellreports", 
   select = c("wellid", "wellreportid", "totaldepthdrilled"),
   filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )
 
-lithologies <- awwid(
+lithologies <- awwid_tbl(
   name = "lithologies",
   filter = "wellreportid gt 40000 and wellreportid lt 41000"
 )

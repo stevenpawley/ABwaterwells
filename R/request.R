@@ -18,7 +18,7 @@ get_query <- function(url, query, skip = NULL, top = NULL) {
     httr2::req_retry(
       max_tries = 10,
       is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
-      backoff = ~ 10
+      backoff = ~10
     ) |>
     httr2::req_perform()
 
@@ -67,15 +67,23 @@ awwid_tables <- function() {
 #' @param select character vector of columns to select from the table. By
 #'   default, all columns will be returned.
 #' @param top Limit the results using the 'top' rows
+#' @param .progress logical, if TRUE, show a progress bar when fetching
+#'  multiple requests.
 #'
 #' @return a tibble
 #' @export
 #'
 #' @examples
-#' awwid("wells", top = 10)
+#' awwid_tbl("wells", top = 10)
 #'
-#' awwid("wells", top = 10, columns = c("gicwellid", "wellid"))
-awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
+#' awwid_tbl("wells", top = 10, columns = c("gicwellid", "wellid"))
+awwid_tbl <- function(
+  name,
+  filter = NULL,
+  select = NULL,
+  top = NULL,
+  .progress = FALSE
+) {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
