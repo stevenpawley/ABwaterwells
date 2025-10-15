@@ -167,14 +167,6 @@ dbAwwid = R6::R6Class(
       data.table::setnames(awwid, rename, names(rename))
       awwid = units::drop_units(awwid)
 
-      # remove logs containing intervals of zero thickness
-      invalid_ids = awwid[get("int_top_dep") == get("int_bot_dep") | get("int_top_dep") < 0][["gicwellid"]]
-      invalid_ids = unique(invalid_ids)
-      awwid = awwid[!get("gicwellid") %in% invalid_ids]
-
-      # check for distinct depths
-      awwid = unique(awwid, by = c("gicwellid", "int_top_dep"))
-
       # add ground elevation
       awwid = private$add_ground_elevation(awwid)
 

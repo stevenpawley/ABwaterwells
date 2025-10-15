@@ -7,8 +7,8 @@
 #' rafts of bedrock, but can potentially overestimate bedrock depth if some
 #' intervals are misclassified as surficial with the bedrock strata.
 #'
-#' @param lithologs data.table of litholog data containing the column '.pred_class'
-#'   which as two factor levels, 'Bedrock' and 'Surficial'.
+#' @param lithologs data.table of litholog data containing the column
+#'   '.pred_class' which as two factor levels, 'Bedrock' and 'Surficial'.
 #' @param response character, name of the response variable column, default is
 #'   '.pred_class'.
 #' @param option character, one of c("last", "first"). Indicates whether to
