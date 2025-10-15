@@ -57,7 +57,8 @@ tblAwwid = R6::R6Class(
         wellmaterialslogs = private$metricate_wellmaterialslogs(df),
         welldecommissioningdetails = private$metricate_welldecommissioningdetails(df),
         wellreports = private$metricate_wellreports(df),
-        perforations = private$metricate_perforations(df)
+        perforations = private$metricate_perforations(df),
+        df
       )
     }
   ),
