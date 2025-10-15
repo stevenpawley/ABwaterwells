@@ -88,7 +88,7 @@ awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
   }
 
   expected_columns <- metadata |>
-    dplyr::filter(table_name == !!name) |>
+    dplyr::filter(table_name == !!tolower(name)) |>
     tidyr::unnest(attributes) |>
     dplyr::pull(column)
 
