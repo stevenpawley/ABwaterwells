@@ -87,18 +87,17 @@ awwid_tbl <- function(
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
+  names(metadata) <- tolower(names(metadata))
+
   # some checks
-  if (!tolower(name) %in% metadata$table_name) {
+  if (!tolower(name) %in% names(metadata)) {
     rlang::abort(glue::glue(
       "`name` must be one of {tables}",
       tables = paste(metadata$value$name, collapse = ", ")
     ))
   }
 
-  expected_columns <- metadata |>
-    dplyr::filter(table_name == !!tolower(name)) |>
-    tidyr::unnest(attributes) |>
-    dplyr::pull(column)
+  expected_columns <- names(metadata[[tolower(name)]]$columns)
 
   if (!all(select %in% expected_columns)) {
     incorrect_cols <- select[!select %in% expected_columns]
