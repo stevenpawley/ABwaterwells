@@ -80,15 +80,20 @@ awwid <- function(name, filter = NULL, select = NULL, top = NULL) {
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
   # some checks
-  if (!tolower(name) %in% names(metadata)) {
+  if (!tolower(name) %in% metadata$table_name) {
     rlang::abort(glue::glue(
       "`name` must be one of {tables}",
       tables = paste(metadata$value$name, collapse = ", ")
     ))
   }
 
-  if (!all(select %in% metadata[[name]]$attributes)) {
-    incorrect_cols <- select[!select %in% metadata[[name]]$attributes]
+  expected_columns <- metadata |>
+    dplyr::filter(table_name == !!name) |>
+    tidyr::unnest(attributes) |>
+    dplyr::pull(column)
+
+  if (!all(select %in% expected_columns)) {
+    incorrect_cols <- select[!select %in% expected_columns]
     incorrect_cols <- glue::glue("'{incorrect_cols}'")
     incorrect_cols <- paste(incorrect_cols, collapse = ", ")
 

@@ -86,3 +86,8 @@ Several predefined queries that perform common processing tasks are also include
 lithologs <- query_lithologs(wells, reports, lithologies_df)
 lithologs
 ```
+
+```{r}
+plan("sequential")
+```
+
