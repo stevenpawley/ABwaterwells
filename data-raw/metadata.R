@@ -2,7 +2,7 @@ library(ABwaterwells)
 library(dplyr)
 
 # Get all table names from the ABwaterwells package
-table_names <- awwid_tables()
+table_names <- awwid_list_tables()
 
 # Generate a list of data frames containing attributes and their types for each table
 # table_obj <- lapply(table_names, function(name) {
@@ -356,7 +356,7 @@ awwid_metadata <- list(
     )
   ),
 
-  DecommissioningDetails = create_table_metadata(
+  WellDecommissioningDetails = create_table_metadata(
     "Well Decommissioning Details",
     "This table contains detailed information about well decommissioning activities",
     list(
