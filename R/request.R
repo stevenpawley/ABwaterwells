@@ -145,7 +145,7 @@ awwid_tbl <- function(
       .x = seq(0L, counts, by = 10000L),
       ~ get_query(url = r, query = query, skip = .x) |>
         data.table::as.data.table(),
-      .progress = TRUE
+      .progress = .progress
     )
     df <- data.table::rbindlist(df)
     df <- dplyr::as_tibble(df)
