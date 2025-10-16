@@ -6,16 +6,31 @@
 the AWWID 'wells', 'wellreports', 'lithologies', 'screens' and 'perforations'
 tables}
 \usage{
-query_screens(wells, wells_reports, screens, perforations)
+query_screens(
+  wells,
+  wells_reports,
+  screens,
+  perforations,
+  .aggregate = TRUE,
+  .assumed_top = 5
+)
 }
 \arguments{
-\item{wells}{dataframe of the 'wells' table from AWWID}
+\item{wells}{tibble of the 'wells' table from AWWID}
 
-\item{wells_reports}{dataframe of the 'wellreports' table from AWWID}
+\item{wells_reports}{tibble of the 'wellreports' table from AWWID}
 
-\item{screens}{dataframe of the 'screens' table from AWWID}
+\item{screens}{tibble of the 'screens' table from AWWID}
 
-\item{perforations}{dataframe of the 'perforations' table from AWWID}
+\item{perforations}{tibble of the 'perforations' table from AWWID}
+
+\item{.aggregate}{logical. If TRUE (default) then the full depth range of
+screens/perforations for each well is returned. If FALSE, then all the
+individual screen/perforation intervals are returned.}
+
+\item{.assumed_top}{numeric. If a well has no screens or perforations,
+then a 5 m screen interval is created at the total depth drilled. This
+parameter sets the length of that interval in metres.}
 }
 \value{
 tibble of processed AWWID litholog data

@@ -44,7 +44,7 @@ plan("multisession")
 To view the available tables:
 
 ```{r get-tables}
-awwid_tables()
+awwid_list_tables()
 ```
 
 
@@ -73,9 +73,9 @@ head(lithologies)
 Data in the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) is stored in imperial units. The `metricate` method can be used to automatically convert each table into metric units:
 
 ```{r metricate}
-# the 'metricate' method automatically converts fields from each table into metric units
-lithologies_df <- lithologies |> 
-  metricate()
+# the 'metricate' method automatically converts fields from each table into metric units\
+reports_df <- metricate(reports)
+lithologies_df <- metricate(lithologies)
 
 head(lithologies_df)
 ```
@@ -83,11 +83,26 @@ head(lithologies_df)
 Several predefined queries that perform common processing tasks are also included in the package:
 
 ```{r queries}
-lithologs <- query_lithologs(wells, reports, lithologies_df)
+lithologs <- query_lithologs(wells, reports_df, lithologies_df)
 lithologs
 ```
 
-```{r}
+```{r queries-screens}
+screens <- awwid_tbl("screens", filter = "wellreportid gt 40000 and wellreportid lt 41000")
+perforations <- awwid_tbl("perforations", filter = "wellreportid gt 40000 and wellreportid lt 41000")
+
+query_screens(
+  wells = wells, 
+  wells_reports = reports_df, 
+  screens = metricate(screens), 
+  perforations = metricate(perforations), 
+  .aggregate = TRUE,
+  .assumed_top = 5
+)
+```
+
+
+```{r teardown, include=FALSE}
 plan("sequential")
 ```
 

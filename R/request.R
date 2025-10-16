@@ -37,8 +37,8 @@ get_query <- function(url, query, skip = NULL, top = NULL) {
 #' @export
 #'
 #' @examples
-#' list_awwid()
-awwid_tables <- function() {
+#' awwid_list_awwid()
+awwid_list_tables <- function() {
   url <-
     "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
