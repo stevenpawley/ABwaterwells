@@ -318,7 +318,7 @@ awwid_metadata <- list(
     list(pk = "unitoptionid")
   ),
 
-  PlugMaterials = create_table_metadata(
+  PlugMaterialOptions = create_table_metadata(
     "Plug Material Options",
     "Lookup table for plug material types",
     list(
@@ -330,7 +330,7 @@ awwid_metadata <- list(
     list(pk = "plugmaterialoptionid")
   ),
 
-  WellMaterialLogs = create_table_metadata(
+  WellMaterialsLogs = create_table_metadata(
     "Well Materials Logs",
     "Well construction material depth and type information",
     list(
