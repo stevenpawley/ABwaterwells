@@ -16,9 +16,9 @@ get_query <- function(url, query, skip = NULL, top = NULL) {
     httr2::request() |>
     httr2::req_cache(path = tempdir()) |>
     httr2::req_retry(
-      max_tries = 10,
-      is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
-      backoff = ~10
+      max_tries = 15,
+      is_transient = ~ httr2::resp_status(.x) %in% c(403, 429, 500, 502, 503),
+      backoff = \(resp) resp * 10
     ) |>
     httr2::req_perform()
 
@@ -136,7 +136,10 @@ awwid_tbl <- function(
   query_count <- paste0("?", query_count)
   resp <- file.path(r, query_count) |>
     httr2::request() |>
-    httr2::req_retry(max_tries = 10) |>
+    httr2::req_retry(
+      max_tries = 10,
+      backoff = \(resp) resp * 5
+    ) |>
     httr2::req_perform()
   counts <- as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
