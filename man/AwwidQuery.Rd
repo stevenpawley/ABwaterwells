@@ -20,6 +20,8 @@ queries/requests will be cached.}
 \item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
 
 \item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
+
+\item{\code{progress}}{purrr progress bar options}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,7 +43,12 @@ queries/requests will be cached.}
 \subsection{Method \code{new()}}{
 Initialize a connection to the AEPA web server
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$new(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$new(
+  cache = TRUE,
+  retry_max_tries = 10L,
+  retry_backoff = 10L,
+  .progress = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -55,6 +62,8 @@ TRUE.}
 \item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
 
 \item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
+
+\item{\code{.progress}}{purrr progress bar options}
 }
 \if{html}{\out{</div>}}
 }

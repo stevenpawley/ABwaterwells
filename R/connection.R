@@ -25,6 +25,9 @@ AwwidQuery = R6::R6Class(
     #' @field retry_backoff Integer, number of seconds to wait between retries.
     retry_backoff = 10L,
 
+    #' @field progress purrr progress bar options
+    progress = TRUE,
+
     #' @description
     #' Initialize a connection to the AEPA web server
     #' @param cache whether to internally cache the results of the requests.
@@ -33,10 +36,14 @@ AwwidQuery = R6::R6Class(
     #'   TRUE.
     #' @param retry_max_tries Integer, maximum number of retries for failed requests.
     #' @param retry_backoff Integer, number of seconds to wait between retries.
+    #' @param .progress purrr progress bar options
     #' @return a R6 class.
-    initialize = function(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L) {
+    initialize = function(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L, .progress = TRUE) {
       self$tables = tolower(private$list_tables())
       self$cache = cache
+      self$retry_max_tries = retry_max_tries
+      self$retry_backoff = retry_backoff
+      self$progress = .progress
     },
 
     #' @description
@@ -100,7 +107,7 @@ AwwidQuery = R6::R6Class(
 
       # perform request in chunks of 10000 rows (REST max)
       if ((is.null(top) || top > 10000) & counts > 10000) {
-        df = pbapply::pblapply(
+        df = purrr::map(
           seq(0L, counts, by = 10000L),
           function(skip, name, query) {
             request_url = private$add_query_options(name, query, skip)
@@ -108,7 +115,7 @@ AwwidQuery = R6::R6Class(
           },
           name = name,
           query = query,
-          cl = "future"
+          .progress = self$progress
         )
         request_url = private$add_query_options(name, query)
         df = data.table::rbindlist(df)
