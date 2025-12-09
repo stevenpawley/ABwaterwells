@@ -1,5 +1,6 @@
 library(data.table)
 library(tidyfst)
+library(tidyr)
 pkgload::load_all()
 
 # Get all table names from the ABwaterwells package
@@ -546,6 +547,7 @@ extract_column_metadata <- function(name, table) {
   data.table(
     table_name = gsub("_", "", name),
     table_description = table_description,
+    title = table$title,
     column = names(x),
     type = sapply(x, function(item) item$type),
     description = sapply(x, function(item) item$description)
@@ -554,8 +556,22 @@ extract_column_metadata <- function(name, table) {
 
 metadata <- mapply(extract_column_metadata, names(awwid_metadata), awwid_metadata, SIMPLIFY = FALSE)
 metadata <- do.call(rbind, metadata)
+metadata = nest(.data = metadata, attributes = c(column, type, description))
 
-metadata <- metadata |>
-  nest_dt(.name = "attributes", column, type, description)
+relations = mapply(
+  function(x, name) {
+    data.table(
+      table_name = name, 
+      pk = list(x$relations$pk), 
+      fk = list(x$relations$fk)
+    )
+  },
+  x = awwid_metadata, 
+  name = gsub("_", "", names(awwid_metadata)),
+  SIMPLIFY = FALSE
+)
+
+relations = do.call(rbind, relations)
+metadata = merge(metadata, relations, by = "table_name")
 
 usethis::use_data(metadata, overwrite = TRUE)
