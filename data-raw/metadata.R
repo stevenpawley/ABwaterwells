@@ -28,7 +28,7 @@ create_table_metadata <- function(title, description, columns, relations = NULL)
 
 # Create metadata for all tables
 awwid_metadata <- list(
-  analysis_items = create_table_metadata(
+  analysisitems = create_table_metadata(
     "Analysis Items",
     "Measured values of chemical analyses performed on water samples",
     list(
@@ -56,7 +56,7 @@ awwid_metadata <- list(
     list(pk = "elementid")
   ),
 
-  chemical_analysis = create_table_metadata(
+  chemicalanalysis = create_table_metadata(
     "Chemical Analysis",
     "Sample details and analysis dates for chemical analyses performed on water samples",
     list(
@@ -90,7 +90,7 @@ awwid_metadata <- list(
     )
   ),
 
-  material_opts = create_table_metadata(
+  materialoptions = create_table_metadata(
     "Material Options",
     "Drilling material type lookup table",
     list(
@@ -102,7 +102,7 @@ awwid_metadata <- list(
     list(pk = "materialoptionid")
   ),
 
-  well_casing_logs = create_table_metadata(
+  wellcasinglogs = create_table_metadata(
     "Well Casing Logs",
     "Well casing depth and diameter information",
     list(
@@ -136,7 +136,7 @@ awwid_metadata <- list(
     list(pk = "drillerid")
   ),
 
-  drilling_companies = create_table_metadata(
+  drillingcompanies = create_table_metadata(
     "Drilling Companies",
     "Drilling company information including company name and contact details",
     list(
@@ -159,7 +159,7 @@ awwid_metadata <- list(
     list(pk = "drillingcompanyid")
   ),
 
-  geophysical_logs = create_table_metadata(
+  geophysicallogs = create_table_metadata(
     "Geophysical Logs",
     "Geophysical log types and whether they were taken and sent to AENV",
     list(
@@ -192,7 +192,7 @@ awwid_metadata <- list(
     list(pk = "lithologyid", fk = c("wellreportid"))
   ),
 
-  other_seals = create_table_metadata(
+  otherseals = create_table_metadata(
     "Other Seals",
     "Seal information for seals other than annular seals",
     list(
@@ -225,7 +225,7 @@ awwid_metadata <- list(
     list(pk = "perforationid", fk = c("wellreportid"))
   ),
 
-  pump_tests = create_table_metadata(
+  pumptests = create_table_metadata(
     "Pump Tests",
     "Pump test data for water wells",
     list(
@@ -246,7 +246,7 @@ awwid_metadata <- list(
     list(pk = "pumptestid", fk = c("wellreportid"))
   ),
 
-  pump_test_items = create_table_metadata(
+  pumptestitems = create_table_metadata(
     "Pump Test Items",
     "Additional pump test data including pumping minutes and recovery measurements",
     list(
@@ -308,7 +308,7 @@ awwid_metadata <- list(
     list(pk = "wellid", fk = c("drillingcompanyid"))
   ),
 
-  unit_options = create_table_metadata(
+  unitoptions = create_table_metadata(
     "Unit Options",
     "Lookup table for units of measurement",
     list(
@@ -320,7 +320,7 @@ awwid_metadata <- list(
     list(pk = "unitoptionid")
   ),
 
-  plug_materials = create_table_metadata(
+  plugmaterials = create_table_metadata(
     "Plug Material Options",
     "Lookup table for plug material types",
     list(
@@ -332,7 +332,7 @@ awwid_metadata <- list(
     list(pk = "plugmaterialoptionid")
   ),
 
-  well_material_logs = create_table_metadata(
+  wellmateriallogs = create_table_metadata(
     "Well Materials Logs",
     "Well construction material depth and type information",
     list(
@@ -358,7 +358,7 @@ awwid_metadata <- list(
     )
   ),
 
-  decommissioning_details = create_table_metadata(
+  decommissioningdetails = create_table_metadata(
     "Well Decommissioning Details",
     "This table contains detailed information about well decommissioning activities",
     list(
@@ -393,7 +393,7 @@ awwid_metadata <- list(
     )
   ),
 
-  well_decommissioning_reasons = create_table_metadata(
+  welldecommissioningreasons = create_table_metadata(
     "Well Decommissioning Reasons",
     "Lookup table for well decommissioning reason types",
     list(
@@ -405,7 +405,7 @@ awwid_metadata <- list(
     list(pk = "welldecommissioningreasonid")
   ),
 
-  well_owners = create_table_metadata(
+  wellowners = create_table_metadata(
     "Well Owners",
     "This table contains information about well owners at the time of drilling",
     list(
@@ -424,7 +424,7 @@ awwid_metadata <- list(
     list(pk = "wellownerid", fk = c("wellid"))
   ),
 
-  well_reports = create_table_metadata(
+  wellreports = create_table_metadata(
     "Well Reports",
     "Water well reports submitted by drillers",
     list(
@@ -515,7 +515,7 @@ awwid_metadata <- list(
     )
   ),
 
-  placement_method_options = create_table_metadata(
+  placementmethodoptions = create_table_metadata(
     "Placement Method Options",
     "Lookup table for placement method types",
     list(
@@ -527,7 +527,7 @@ awwid_metadata <- list(
     list(pk = "placementmethodoptionid")
   ),
 
-  casing_status = create_table_metadata(
+  casingstatus = create_table_metadata(
     "Casing Status",
     "Lookup table for casing status types",
     list(
@@ -545,7 +545,7 @@ extract_column_metadata <- function(name, table) {
   table_description = table$description
 
   data.table(
-    table_name = gsub("_", "", name),
+    table_name = name,
     table_description = table_description,
     title = table$title,
     column = names(x),
@@ -567,7 +567,7 @@ relations = mapply(
     )
   },
   x = awwid_metadata, 
-  name = gsub("_", "", names(awwid_metadata)),
+  name = names(awwid_metadata),
   SIMPLIFY = FALSE
 )
 
