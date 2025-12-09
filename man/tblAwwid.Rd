@@ -62,6 +62,16 @@ Print method for the 'TblAwwid' class
 \if{html}{\out{<div class="r">}}\preformatted{TblAwwid$print(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{additional arguments (not used)}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Invisibly returns the object itself
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TblAwwid-metricate"></a>}}

@@ -17,8 +17,8 @@ TblAwwid = R6::R6Class(
 
     #' @description
     #' Create a new 'TblAwwid' object
-    #' @param name name of the table
     #' @param x a data.table of the table data
+    #' @param name name of the table
     #' @param request the URL string that was used to request the table
     initialize = function(x, name, request) {
       self$name = name
@@ -28,6 +28,8 @@ TblAwwid = R6::R6Class(
 
     #' @description
     #' Print method for the 'TblAwwid' class
+    #' @param ... additional arguments (not used)
+    #' @return Invisibly returns the object itself
     print = function(...) {
       print(head(self$data))
       invisible(self)
