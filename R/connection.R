@@ -19,14 +19,22 @@ AwwidQuery = R6::R6Class(
     #'   queries/requests will be cached.
     cache = TRUE,
 
+    #' @field retry_max_tries Integer, maximum number of retries for failed requests.
+    retry_max_tries = 10L,
+
+    #' @field retry_backoff Integer, number of seconds to wait between retries.
+    retry_backoff = 10L,
+
     #' @description
     #' Initialize a connection to the AEPA web server
     #' @param cache whether to internally cache the results of the requests.
     #'   This can increase performance for example, for queries where the wells
     #'   or well reports tables need to be repeatedly downloaded. The default is
     #'   TRUE.
+    #' @param retry_max_tries Integer, maximum number of retries for failed requests.
+    #' @param retry_backoff Integer, number of seconds to wait between retries.
     #' @return a R6 class.
-    initialize = function(cache = TRUE) {
+    initialize = function(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L) {
       self$tables = tolower(private$list_tables())
       self$cache = cache
     },
@@ -74,8 +82,13 @@ AwwidQuery = R6::R6Class(
       query_count = paste0("?", query_count)
       resp = file.path(self$url, name, query_count) |>
         httr2::request() |>
-        httr2::req_retry(max_tries = 10) |>
+        httr2::req_retry(
+          max_tries = self$retry_max_tries,
+          is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
+          backoff = \(resp) self$retry_backoff
+        ) |>
         httr2::req_perform(verbosity = 0)
+      
       counts = as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
       # check for previously cached results
@@ -372,7 +385,10 @@ AwwidQuery = R6::R6Class(
     list_tables = function() {
       metadata = self$url |>
         httr2::request() |>
-        httr2::req_retry(max_tries = 10) |>
+        httr2::req_retry(
+          max_tries = self$retry_max_tries,
+          backoff = \(resp) self$retry_backoff
+        ) |>
         httr2::req_perform()
 
       metadata = metadata |>
@@ -403,9 +419,9 @@ AwwidQuery = R6::R6Class(
         httr2::request() |>
         httr2::req_cache(path = tempdir()) |>
         httr2::req_retry(
-          max_tries = 10,
+          max_tries = self$retry_max_tries,
           is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
-          backoff = ~ 10
+          backoff = \(resp) self$retry_backoff
         )
 
       result = resp |>

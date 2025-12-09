@@ -36,7 +36,6 @@ A basic request of the 'wells' and 'wellreports' tables. Requests are performed 
 
 ```{r example}
 library(ABwaterwells)
-future::plan("multisession")
 
 # create a connection
 con = AwwidQuery$new()
@@ -94,9 +93,4 @@ waterlevel = con$query_water_level()
 
 ```{r show-lithologs}
 head(lithologs)
-```
-
-
-```{r}
-future::plan("sequential")
 ```

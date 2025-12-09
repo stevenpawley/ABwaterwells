@@ -8,8 +8,8 @@ are labelled as either 'Bedrock' or 'Surficial'}
 pick_bedrock(lithologs, response = ".pred_class", option = c("last", "first"))
 }
 \arguments{
-\item{lithologs}{data.table of litholog data containing the column '.pred_class'
-which as two factor levels, 'Bedrock' and 'Surficial'.}
+\item{lithologs}{data.table of litholog data containing the column
+'.pred_class' which as two factor levels, 'Bedrock' and 'Surficial'.}
 
 \item{response}{character, name of the response variable column, default is
 '.pred_class'.}
