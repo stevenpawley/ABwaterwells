@@ -7,12 +7,12 @@ con <- dbAwwid$new()
 table_names <- con$tables
 
 # Generate a list of data frames containing attributes and their types for each table
-table_obj <- lapply(table_names, function(name) {
-  x <- con$request(name, top = 1L)$metricate()
-  x <- tibble(attributes = names(x), type = sapply(x, function(cl) class(cl)[1]))
-  return(x)
-})
-metadata <- setNames(table_obj, table_names)
+# table_obj <- lapply(table_names, function(name) {
+#   x <- con$request(name, top = 1L)$metricate()
+#   x <- tibble(attributes = names(x), type = sapply(x, function(cl) class(cl)[1]))
+#   return(x)
+# })
+# metadata <- setNames(table_obj, table_names)
 
 # Function to generate metadata for each table
 create_table_metadata <- function(title, description, columns, relations = NULL) {
@@ -562,8 +562,8 @@ relations = mapply(
   function(x, name) {
     data.table(
       table_name = name, 
-      pk = list(x$relations$pk), 
-      fk = list(x$relations$fk)
+      pk = list(data.table(keys = x$relations$pk)),
+      fk = list(data.table(keys = x$relations$fk))
     )
   },
   x = awwid_metadata, 
