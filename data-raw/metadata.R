@@ -85,7 +85,8 @@ awwid_metadata <- list(
       boreholedepthto = list(type = "units", description = "To	Bottom of the borehole as measured from ground level"),
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
-    )
+    ),
+    list(pk = "boreholeid", fk = c("wellreportid"))
   ),
 
   MaterialOptions = create_table_metadata(
