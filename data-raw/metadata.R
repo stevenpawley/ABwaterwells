@@ -52,7 +52,7 @@ awwid_metadata <- list(
       decimalplaces = list(type = "integer", description = "Precision of measurement in decimals"),
       unitofmeasure = list(type = "character", description = "Units of measurement")
     ),
-    list(pk = "elementid", fk = NA_character_)
+    list(pk = "elementid")
   ),
 
   chemicalanalysis = create_table_metadata(
@@ -99,7 +99,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "materialoptionid", fk = NA_character_)
+    list(pk = "materialoptionid")
   ),
 
   wellcasinglogs = create_table_metadata(
@@ -117,7 +117,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "materialoptionid", fk = NA_character_)
+    list(pk = "materialoptionid")
   ),
 
   drillers = create_table_metadata(
@@ -133,7 +133,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "drillerid", fk = NA_character_)
+    list(pk = "drillerid")
   ),
 
   drillingcompanies = create_table_metadata(
@@ -156,7 +156,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "drillingcompanyid", fk = NA_character_)
+    list(pk = "drillingcompanyid")
   ),
 
   geophysicallogs = create_table_metadata(
@@ -317,7 +317,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "unitoptionid", fk = NA_character_)
+    list(pk = "unitoptionid")
   ),
 
   plugmaterials = create_table_metadata(
@@ -329,7 +329,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "plugmaterialoptionid", fk = NA_character_)
+    list(pk = "plugmaterialoptionid")
   ),
 
   wellmateriallogs = create_table_metadata(
@@ -402,7 +402,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "welldecommissioningreasonid", fk = NA_character_)
+    list(pk = "welldecommissioningreasonid")
   ),
 
   wellowners = create_table_metadata(
@@ -524,7 +524,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "placementmethodoptionid", fk = NA_character_)
+    list(pk = "placementmethodoptionid")
   ),
 
   casingstatus = create_table_metadata(
@@ -536,7 +536,7 @@ awwid_metadata <- list(
       createtimestamp = list(type = "POSIXct", description = "Creation timestamp"),
       updatetimestamp = list(type = "POSIXct", description = "Updated timestamp")
     ),
-    list(pk = "casingstatusid", fk = NA_character_)
+    list(pk = "casingstatusid")
   )
 )
 
