@@ -39,7 +39,7 @@ library(ABwaterwells)
 future::plan("multisession")
 
 # create a connection
-con = dbAwwid$new()
+con = AwwidQuery$new()
 
 # request individual tables
 wells = con$request(

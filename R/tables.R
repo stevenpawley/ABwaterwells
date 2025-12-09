@@ -1,9 +1,9 @@
 #' AWWID table class
 #'
-#' @return a `tblAwwid` R6 class
+#' @return a `TblAwwid` R6 class
 #' @keywords internal
-tblAwwid = R6::R6Class(
-  classname = "tblAwwid",
+TblAwwid = R6::R6Class(
+  classname = "TblAwwid",
 
   public = list(
     #' @field name name of the table
@@ -16,7 +16,7 @@ tblAwwid = R6::R6Class(
     request = NULL,
 
     #' @description
-    #' Create a new 'tblAwwid' object
+    #' Create a new 'TblAwwid' object
     #' @param name name of the table
     #' @param x a data.table of the table data
     #' @param request the URL string that was used to request the table
@@ -27,14 +27,14 @@ tblAwwid = R6::R6Class(
     },
 
     #' @description
-    #' Print method for the 'tblAwwid' class
+    #' Print method for the 'TblAwwid' class
     print = function(...) {
       print(head(self$data))
       invisible(self)
     },
 
     #' @description
-    #' Standardize a tblAwwid object by converting all measurement columns
+    #' Standardize a TblAwwid object by converting all measurement columns
     #' from imperial units to metric equivalents, and renaming some column
     #' names to avoid name collisions when joining tables
     metricate = function() {

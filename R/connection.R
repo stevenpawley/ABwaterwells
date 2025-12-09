@@ -1,4 +1,4 @@
-# dbAwwid R6 class ----
+# AwwidQuery R6 class ----
 
 #' Create a connection to the AEPA AWWID web server
 #'
@@ -6,8 +6,8 @@
 #' An R6 object that contains methods to request tables from the AWWID web server
 #' using the OData protocol
 #' @export
-dbAwwid = R6::R6Class(
-  classname = "dbAwwid",
+AwwidQuery = R6::R6Class(
+  classname = "AwwidQuery",
   public = list(
     #' @field url The base URL
     url = "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata",
@@ -106,7 +106,7 @@ dbAwwid = R6::R6Class(
       }
 
       data.table::setkeyv(df, names(df)[1])
-      tbl = tblAwwid$new(name = name, x = df, request = request_url)
+      tbl = TblAwwid$new(name = name, x = df, request = request_url)
 
       if (self$cache) {
         request_tag = private$add_query_options(name, query, top = top)
