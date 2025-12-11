@@ -3,7 +3,7 @@ library(tidyr)
 pkgload::load_all()
 
 # Get all table names from the ABwaterwells package
-con <- dbAwwid$new()
+con <- AwwidQuery$new()
 table_names <- con$tables
 
 # Generate a list of data frames containing attributes and their types for each table
@@ -554,24 +554,25 @@ extract_column_metadata <- function(name, table) {
   )
 }
 
-metadata <- mapply(extract_column_metadata, names(awwid_metadata), awwid_metadata, SIMPLIFY = FALSE)
-metadata <- do.call(rbind, metadata)
-metadata = nest(.data = metadata, attributes = c(column, type, description))
+# metadata <- mapply(extract_column_metadata, names(awwid_metadata), awwid_metadata, SIMPLIFY = FALSE)
+# metadata <- do.call(rbind, metadata)
+# metadata <- nest(.data = metadata, attributes = c(column, type, description))
+#
+# relations = mapply(
+#   function(x, name) {
+#     data.table(
+#       table_name = name,
+#       pk = list(data.table(keys = x$relations$pk)),
+#       fk = list(data.table(keys = x$relations$fk))
+#     )
+#   },
+#   x = awwid_metadata,
+#   name = names(awwid_metadata),
+#   SIMPLIFY = FALSE
+# )
+#
+# relations = do.call(rbind, relations)
+# metadata = merge(metadata, relations, by = "table_name")
 
-relations = mapply(
-  function(x, name) {
-    data.table(
-      table_name = name, 
-      pk = list(data.table(keys = x$relations$pk)),
-      fk = list(data.table(keys = x$relations$fk))
-    )
-  },
-  x = awwid_metadata, 
-  name = names(awwid_metadata),
-  SIMPLIFY = FALSE
-)
-
-relations = do.call(rbind, relations)
-metadata = merge(metadata, relations, by = "table_name")
-
+metadata = awwid_metadata
 usethis::use_data(metadata, overwrite = TRUE)
