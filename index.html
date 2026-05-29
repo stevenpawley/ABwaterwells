@@ -81,7 +81,7 @@
 <div class="section level2">
 <h2 id="accessing-tables-by-name">Accessing tables by name<a class="anchor" aria-label="anchor" href="#accessing-tables-by-name"></a>
 </h2>
-<p>Pass any field from the connection object directly to <code><a href="reference/awwid_tbl.html">awwid_tbl()</a></code>. Your IDE will tab-complete the available table names — no need to type or remember them as strings.</p>
+<p>Pass any field from the connection object directly to <code><a href="reference/awwid_tbl.html">awwid_tbl()</a></code>. Most IDEs will tab-complete the available table names, without the need to type or remember them as characters.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wells</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/awwid_tbl.html">awwid_tbl</a></span><span class="op">(</span></span>
 <span>  <span class="va">con</span><span class="op">$</span><span class="va">wells</span>,</span>
@@ -115,7 +115,7 @@
 <div class="section level2">
 <h2 id="looping-over-multiple-tables">Looping over multiple tables<a class="anchor" aria-label="anchor" href="#looping-over-multiple-tables"></a>
 </h2>
-<p>For programmatic use — iterating over a variable set of table names — pass a character string to <code><a href="reference/awwid_tbl.html">awwid_tbl()</a></code> directly, or index into the connection object with <code>[[</code>:</p>
+<p>For programmatic use such as iterating over a variable set of table names, pass a character string to <code><a href="reference/awwid_tbl.html">awwid_tbl()</a></code> directly, or index into the connection object with <code>[[</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tables_to_download</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wells"</span>, <span class="st">"wellreports"</span>, <span class="st">"lithologies"</span><span class="op">)</span></span>
 <span></span>
@@ -170,17 +170,22 @@
 <span><span class="co">#&gt; # ℹ 5 more variables: material &lt;chr&gt;, material_desc &lt;chr&gt;, colour &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   waterbearing &lt;lgl&gt;, code &lt;chr&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">screens</span>      <span class="op">&lt;-</span> <span class="fu"><a href="reference/awwid_tbl.html">awwid_tbl</a></span><span class="op">(</span><span class="va">con</span><span class="op">$</span><span class="va">screens</span>,</span>
-<span>                          filter <span class="op">=</span> <span class="st">"wellreportid gt 40000 and wellreportid lt 41000"</span><span class="op">)</span></span>
-<span><span class="va">perforations</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/awwid_tbl.html">awwid_tbl</a></span><span class="op">(</span><span class="va">con</span><span class="op">$</span><span class="va">perforations</span>,</span>
-<span>                          filter <span class="op">=</span> <span class="st">"wellreportid gt 40000 and wellreportid lt 41000"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">screens</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/awwid_tbl.html">awwid_tbl</a></span><span class="op">(</span></span>
+<span>  <span class="va">con</span><span class="op">$</span><span class="va">screens</span>,</span>
+<span>  filter <span class="op">=</span> <span class="st">"wellreportid gt 40000 and wellreportid lt 41000"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">perforations</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/awwid_tbl.html">awwid_tbl</a></span><span class="op">(</span></span>
+<span>  <span class="va">con</span><span class="op">$</span><span class="va">perforations</span>,</span>
+<span>  filter <span class="op">=</span> <span class="st">"wellreportid gt 40000 and wellreportid lt 41000"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/query_screens.html">query_screens</a></span><span class="op">(</span></span>
-<span>  wells        <span class="op">=</span> <span class="va">wells</span>,</span>
+<span>  wells <span class="op">=</span> <span class="va">wells</span>,</span>
 <span>  wells_reports <span class="op">=</span> <span class="va">reports_df</span>,</span>
-<span>  screens      <span class="op">=</span> <span class="fu"><a href="reference/metricate.html">metricate</a></span><span class="op">(</span><span class="va">screens</span><span class="op">)</span>,</span>
+<span>  screens <span class="op">=</span> <span class="fu"><a href="reference/metricate.html">metricate</a></span><span class="op">(</span><span class="va">screens</span><span class="op">)</span>,</span>
 <span>  perforations <span class="op">=</span> <span class="fu"><a href="reference/metricate.html">metricate</a></span><span class="op">(</span><span class="va">perforations</span><span class="op">)</span>,</span>
-<span>  .aggregate   <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .aggregate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  .assumed_top <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -220,6 +225,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/stevenpawley/ABwaterwells" class="external-link"><img src="https://codecov.io/gh/stevenpawley/ABwaterwells/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
