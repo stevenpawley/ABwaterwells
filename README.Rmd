@@ -19,78 +19,88 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The goal of **ABwaterwells** is to provide an R API to access water well data in Alberta.
+**ABwaterwells** provides an R interface to the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) (AWWID) via its OData web service. Large tables are downloaded in parallel chunks and automatically converted from imperial to metric units.
 
 ## Installation
 
-You can install the development version of ABwaterwells from [GitHub](https://github.com/) with:
-
-``` r
+```r
 # install.packages("devtools")
 devtools::install_github("stevenpawley/ABwaterwells")
 ```
 
-## Example
+## Getting started
 
-A basic request of the 'wells' and 'wellreports' tables. Requests are performed in chunks in parallel.
+Create a connection object. This fetches the list of available tables from the service.
 
-```{r example}
+```{r connect}
 library(ABwaterwells)
 
-# create a connection
-con = AwwidQuery$new()
+con <- AwwidQuery$new()
+```
 
-# request individual tables
-wells = con$request(
-  "wells", 
+## Accessing tables by name
+
+Each AWWID table has a dedicated method on the connection object. Use your IDE's tab completion to discover available tables — no need to remember or type table names as strings.
+
+```{r named-methods}
+# named methods accept filter, select, and top arguments
+wells <- con$wells(
   select = c("gicwellid", "wellid", "longitude", "latitude"),
   filter = "gicwellid in (40000, 40001, 40002)"
 )
 
-reports = con$request(
-  "wellreports", 
+reports <- con$wellreports(
   select = c("wellid", "wellreportid", "totaldepthdrilled"),
   filter = "wellreportid in (40000, 40001, 40002)"
 )
 
-# the data from these objects is stored in the 'data' field
+# downloaded data is stored in the $data field
 head(reports$data)
 ```
 
-To view the available tables:
+Data in AWWID is stored in imperial units. Call `$metricate()` to convert a table to metric:
+
+```{r metricate}
+wells_df   <- wells$metricate()
+reports_df <- reports$metricate()
+
+head(reports_df)
+```
+
+## Looping over multiple tables
+
+To loop over a set of table names programmatically, use `$request()` directly. The `$tables` field lists every table available on the service.
 
 ```{r list-tables}
 con$tables
 ```
 
-Data in the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) is stored in imperial units. The `metricate` method can be used to automatically convert each table into metric units:
+```{r loop-tables, eval = FALSE}
+tables_to_download <- c("wells", "wellreports", "lithologies")
 
-```{r metricate}
-# the 'metricate' method automatically converts fields from each table into metric units
-wells_df = wells$metricate()
-reports_df = reports$metricate()
-
-head(reports_df)
+results <- lapply(tables_to_download, function(tbl) {
+  con$request(tbl, top = 100)$metricate()
+})
+names(results) <- tables_to_download
 ```
 
-To save on the number of requests, the **ABwaterwells** package automatically caching the results of specific requests. This means if a request is repeated, the data will be returned almost immediately:
+## Caching
+
+Repeated calls with the same arguments return the cached result immediately. Use `$clear_cache()` to force a fresh download.
 
 ```{r caching}
-con$request(
-  "wells",
+# second call returns instantly from cache
+con$wells(
   select = c("gicwellid", "wellid", "longitude", "latitude"),
   filter = "gicwellid in (40000, 40001, 40002)"
 )
 ```
 
-Several predefined queries that perform common processing tasks are also included in the package. Caching is used in these queries so that previous requests, for example, to the wells table, do not get performed repeatedly:
+## Predefined queries
 
-```{r queries}
-lithologs = con$query_lithologs()
-screens = con$query_screens()
-waterlevel = con$query_water_level()
-```
+Several multi-table queries cover common workflows. Caching means shared tables (e.g. `wells`) are only downloaded once across queries.
 
-```{r show-lithologs}
-head(lithologs)
+```{r queries, eval = FALSE}
+lithologs  <- con$query_lithologs()
+waterlevel <- con$query_water_level()
 ```
