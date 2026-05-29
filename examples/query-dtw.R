@@ -24,7 +24,10 @@ reports <-
   metricate()
 
 pumptests <-
-  request_awwid("pumptests", select = c("wellreportid", "staticwaterlevel", "testdate")) |>
+  request_awwid(
+    "pumptests",
+    select = c("wellreportid", "staticwaterlevel", "testdate")
+  ) |>
   metricate()
 
 dtw <- query_staticwater(wells, reports, pumptests)
@@ -42,7 +45,11 @@ dtw_m |>
   geom_line()
 
 p_dtw <- dtw_m |>
-  filter(year < 2024, year >= 1940, str_detect(tolower(drillingmethod), "rotary")) |>
+  filter(
+    year < 2024,
+    year >= 1940,
+    str_detect(tolower(drillingmethod), "rotary")
+  ) |>
   group_by(year) |>
   summarize(
     staticwaterlevel = mean(staticwaterlevel, na.rm = TRUE),
@@ -58,7 +65,11 @@ p_dtw <- dtw_m |>
   theme_minimal()
 
 p_depthdrilled <- dtw_m |>
-  filter(year < 2024, year >= 1940, str_detect(tolower(drillingmethod), "rotary")) |>
+  filter(
+    year < 2024,
+    year >= 1940,
+    str_detect(tolower(drillingmethod), "rotary")
+  ) |>
   group_by(year) |>
   summarize(totaldepthdrilled = mean(totaldepthdrilled, na.rm = TRUE)) |>
   ungroup() |>
@@ -79,4 +90,3 @@ dtw_m |>
   scale_colour_binned(breaks = 1:10, type = "viridis") +
   coord_map() +
   theme_minimal()
-

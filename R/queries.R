@@ -39,7 +39,9 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 
   # Check that "well_reports" is metricated
   if (!inherits(well_reports$totaldepthdrilled, "units")) {
-    abort("The `well_reports` tibble must be metricated. Use the `metricate()` function.")
+    abort(
+      "The `well_reports` tibble must be metricated. Use the `metricate()` function."
+    )
   }
 
   # Check the required columns are present in "lithologies"
@@ -62,9 +64,13 @@ query_lithologs <- function(wells, well_reports, lithologies) {
   }
 
   # Check that "lithologies" is metricated
-  if (!inherits(lithologies$lithdepthfrom, "units") ||
-      !inherits(lithologies$lithdepthto, "units")) {
-    abort("The `lithologies` tibble must be metricated. Use the `metricate()` function.")
+  if (
+    !inherits(lithologies$lithdepthfrom, "units") ||
+      !inherits(lithologies$lithdepthto, "units")
+  ) {
+    abort(
+      "The `lithologies` tibble must be metricated. Use the `metricate()` function."
+    )
   }
 
   # Prepare AWWID tables
@@ -84,7 +90,9 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 
   awwid <-
     left_join(awwid_lithologies, awwid_wells, by = "wellid") |>
-    select(-any_of(c("wellreportid", "lithologyid", contains("time"), "wellid")))
+    select(
+      -any_of(c("wellreportid", "lithologyid", contains("time"), "wellid"))
+    )
 
   # standardize columns
   awwid <- awwid |>
@@ -153,8 +161,14 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 #' @importFrom dplyr rename select left_join join_by bind_rows group_by summarize first ungroup mutate as_tibble filter distinct
 #' @importFrom tidyr drop_na
 #' @importFrom units as_units
-query_screens <- function(wells, wells_reports, screens, perforations, .aggregate = TRUE,
-                          .assumed_top = 5) {
+query_screens <- function(
+  wells,
+  wells_reports,
+  screens,
+  perforations,
+  .aggregate = TRUE,
+  .assumed_top = 5
+) {
   # Check that required "wells" columns are present
   required_well_cols <- c("gicwellid", "wellid", "longitude", "latitude")
   check_wells <- required_well_cols %in% names(wells)
@@ -175,7 +189,9 @@ query_screens <- function(wells, wells_reports, screens, perforations, .aggregat
 
   # Check that "wells_reports" is metricated
   if (!inherits(wells_reports$totaldepthdrilled, "units")) {
-    abort("The `wells_reports` tibble must be metricated. Use the `metricate()` function.")
+    abort(
+      "The `wells_reports` tibble must be metricated. Use the `metricate()` function."
+    )
   }
 
   # Check that required "screens" columns are present
@@ -188,9 +204,13 @@ query_screens <- function(wells, wells_reports, screens, perforations, .aggregat
   }
 
   # Check that "screens" is metricated
-  if (!inherits(screens$screendepthfrom, "units") ||
-      !inherits(screens$screendepthto, "units")) {
-    abort("The `screens` tibble must be metricated. Use the `metricate()` function.")
+  if (
+    !inherits(screens$screendepthfrom, "units") ||
+      !inherits(screens$screendepthto, "units")
+  ) {
+    abort(
+      "The `screens` tibble must be metricated. Use the `metricate()` function."
+    )
   }
 
   # Check that required "perforations" columns are present
@@ -203,9 +223,13 @@ query_screens <- function(wells, wells_reports, screens, perforations, .aggregat
   }
 
   # Check that "perforations" is metricated
-  if (!inherits(perforations$perfdepthfrom, "units") ||
-      !inherits(perforations$perfdepthto, "units")) {
-    abort("The `perforations` tibble must be metricated. Use the `metricate()` function.")
+  if (
+    !inherits(perforations$perfdepthfrom, "units") ||
+      !inherits(perforations$perfdepthto, "units")
+  ) {
+    abort(
+      "The `perforations` tibble must be metricated. Use the `metricate()` function."
+    )
   }
 
   # Rename perforations columns to match the names of the screens
@@ -224,7 +248,7 @@ query_screens <- function(wells, wells_reports, screens, perforations, .aggregat
     wells_reports_index,
     wells_index,
     by = join_by("wellid")
-    ) |>
+  ) |>
     select(-"wellid")
 
   # combine the perforations and screens
@@ -245,14 +269,22 @@ query_screens <- function(wells, wells_reports, screens, perforations, .aggregat
       ) |>
       ungroup() |>
       mutate(
-        screendepthmid = .data$screendepthfrom + ((.data$screendepthto - .data$screendepthfrom) / 2)
+        screendepthmid = .data$screendepthfrom +
+          ((.data$screendepthto - .data$screendepthfrom) / 2)
       ) |>
       as_tibble()
   } else {
     screens_perfs <- screens_perfs |>
-      select(all_of(c("wellreportid", "longitude", "latitude", "screendepthfrom", "screendepthto"))) |>
+      select(all_of(c(
+        "wellreportid",
+        "longitude",
+        "latitude",
+        "screendepthfrom",
+        "screendepthto"
+      ))) |>
       mutate(
-        screendepthmid = .data$screendepthfrom + ((.data$screendepthto - .data$screendepthfrom) / 2)
+        screendepthmid = .data$screendepthfrom +
+          ((.data$screendepthto - .data$screendepthfrom) / 2)
       ) |>
       as_tibble()
   }

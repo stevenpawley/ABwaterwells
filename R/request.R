@@ -1,8 +1,12 @@
 # internal helpers ----
 
 build_query_url <- function(base_url, query, skip = NULL, top = NULL) {
-  if (!is.null(skip)) query <- c(query, glue::glue("$skip={skip}"))
-  if (!is.null(top))  query <- c(query, glue::glue("$top={top}"))
+  if (!is.null(skip)) {
+    query <- c(query, glue::glue("$skip={skip}"))
+  }
+  if (!is.null(top)) {
+    query <- c(query, glue::glue("$top={top}"))
+  }
   qs <- paste(query, collapse = "&")
   if (nzchar(qs)) paste0(base_url, "?", qs) else base_url
 }
@@ -119,11 +123,22 @@ awwid_tbl <- function(table, ...) UseMethod("awwid_tbl")
 
 #' @export
 #' @rdname awwid_tbl
-awwid_tbl.awwid_table <- function(table, filter = NULL, select = NULL,
-                                   top = NULL, chunk_size = 10000L,
-                                   .progress = FALSE) {
-  awwid_tbl.character(table$name, filter = filter, select = select,
-                      top = top, chunk_size = chunk_size, .progress = .progress)
+awwid_tbl.awwid_table <- function(
+  table,
+  filter = NULL,
+  select = NULL,
+  top = NULL,
+  chunk_size = 10000L,
+  .progress = FALSE
+) {
+  awwid_tbl.character(
+    table$name,
+    filter = filter,
+    select = select,
+    top = top,
+    chunk_size = chunk_size,
+    .progress = .progress
+  )
 }
 
 #' @export
@@ -136,7 +151,7 @@ awwid_tbl.character <- function(
   chunk_size = 10000L,
   .progress = FALSE
 ) {
-  url  <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
+  url <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
   name <- tolower(table)
 
   names(metadata) <- tolower(names(metadata))
@@ -152,7 +167,7 @@ awwid_tbl.character <- function(
   # validate column names
   if (!is.null(select)) {
     expected_columns <- names(metadata[[name]]$columns)
-    incorrect_cols   <- select[!select %in% expected_columns]
+    incorrect_cols <- select[!select %in% expected_columns]
     if (length(incorrect_cols) > 0) {
       rlang::abort(glue::glue(
         "The column(s) {cols} are not present in `{name}`",
@@ -167,7 +182,7 @@ awwid_tbl.character <- function(
   }
 
   # build base URL and query components
-  r     <- paste(url, name, sep = "/")
+  r <- paste(url, name, sep = "/")
   query <- c()
 
   if (!is.null(filter)) {
@@ -178,7 +193,11 @@ awwid_tbl.character <- function(
   }
 
   # count records ($top=0 avoids transferring rows)
-  count_url <- paste0(r, "?", paste(c(query, "$count=true", "$top=0"), collapse = "&"))
+  count_url <- paste0(
+    r,
+    "?",
+    paste(c(query, "$count=true", "$top=0"), collapse = "&")
+  )
   resp <- httr2::request(count_url) |>
     httr2::req_retry(
       max_tries = 15,
@@ -189,7 +208,9 @@ awwid_tbl.character <- function(
 
   count_val <- httr2::resp_body_json(resp)[["@odata.count"]]
   if (is.null(count_val)) {
-    rlang::abort("Server did not return @odata.count; verify that the OData service supports $count.")
+    rlang::abort(
+      "Server did not return @odata.count; verify that the OData service supports $count."
+    )
   }
   counts <- as.integer(count_val)
 
@@ -198,18 +219,24 @@ awwid_tbl.character <- function(
     # discover primary key column name (original casing) for $orderby
     pk_resp <- build_request(build_query_url(r, query, top = 1L)) |>
       httr2::req_perform(verbosity = 0)
-    pk_col <- names(jsonlite::fromJSON(httr2::resp_body_string(pk_resp))$value)[1]
+    pk_col <- names(jsonlite::fromJSON(httr2::resp_body_string(pk_resp))$value)[
+      1
+    ]
 
     reqs <- lapply(seq(0L, counts - 1L, by = chunk_size), function(skip) {
       build_request(build_query_url(
         r,
         c(query, glue::glue("$orderby={pk_col}")),
         skip = skip,
-        top  = chunk_size
+        top = chunk_size
       ))
     })
 
-    resps  <- httr2::req_perform_parallel(reqs, on_error = "continue", progress = .progress)
+    resps <- httr2::req_perform_parallel(
+      reqs,
+      on_error = "continue",
+      progress = .progress
+    )
     errors <- !vapply(resps, inherits, logical(1), "httr2_response")
     if (any(errors)) {
       rlang::abort(glue::glue(

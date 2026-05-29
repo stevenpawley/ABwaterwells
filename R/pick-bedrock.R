@@ -22,8 +22,11 @@
 #' @return data.table containing the bedrock depths per well, with 'gicwellid'
 #'   and '.bedrock_dep' columns.
 #' @export
-pick_bedrock = function(lithologs, response = ".pred_class",
-                        option = c("last", "first")) {
+pick_bedrock = function(
+  lithologs,
+  response = ".pred_class",
+  option = c("last", "first")
+) {
   # some checks
   option = match.arg(option)
 
@@ -42,16 +45,21 @@ pick_bedrock = function(lithologs, response = ".pred_class",
 
     # take the top of the next interval beneath any surficial as the bedrock top
     ypred = max_surf[lithologs, on = "gicwellid"]
-    ypred = ypred[, .SD[
-      (get("int_top_dep") > get("minv") | is.na(get("minv"))) &
-        (get(response) == "Bedrock"),
-    ], by = "gicwellid"]
+    ypred = ypred[,
+      .SD[
+        (get("int_top_dep") > get("minv") | is.na(get("minv"))) &
+          (get(response) == "Bedrock"),
+      ],
+      by = "gicwellid"
+    ]
     ypred = ypred[, .SD[1], by = "gicwellid"]
-
   } else if (option == "first") {
-    ypred = lithologs[, .SD[
-      get(response) == "Bedrock" & !duplicated(get(response))],
-      by = "gicwellid"]
+    ypred = lithologs[,
+      .SD[
+        get(response) == "Bedrock" & !duplicated(get(response))
+      ],
+      by = "gicwellid"
+    ]
   }
 
   data.table::setnames(ypred, "int_top_dep", ".bedrock_dep")

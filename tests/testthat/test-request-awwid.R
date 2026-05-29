@@ -27,9 +27,9 @@ test_that("awwid_tbl rejects unknown table names", {
 })
 
 test_that("awwid_tbl row count matches @odata.count", {
-  con  <- awwid_connect()
+  con <- awwid_connect()
   name <- "materialoptions"
-  url  <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
+  url <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
 
   count_url <- paste0(url, "/", name, "?$count=true&$top=0")
   resp_body <- httr2::request(count_url) |>
@@ -44,11 +44,11 @@ test_that("awwid_tbl row count matches @odata.count", {
 test_that("chunked download matches single-request download and has no duplicates", {
   con <- awwid_connect()
 
-  direct  <- awwid_tbl(con$materialoptions)
+  direct <- awwid_tbl(con$materialoptions)
   chunked <- awwid_tbl(con$materialoptions, chunk_size = 2L)
 
   key_col <- names(direct)[1]
-  direct  <- direct[order(direct[[key_col]]), ]
+  direct <- direct[order(direct[[key_col]]), ]
   chunked <- chunked[order(chunked[[key_col]]), ]
 
   expect_equal(nrow(chunked), nrow(direct))

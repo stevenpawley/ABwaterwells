@@ -55,14 +55,16 @@ metricate.default <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate analysisitems
 metricate.analysisitems <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("value"), as.numeric))
 }
 
 #' @export
 #' @exportS3Method metricate boreholes
 metricate.boreholes <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("diameter"), inch_to_cm)) |>
     dplyr::mutate(dplyr::across(dplyr::any_of(c("from", "to")), ft_to_m)) |>
     dplyr::rename(dplyr::any_of(c(
@@ -74,10 +76,15 @@ metricate.boreholes <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate wellcasinglogs
 metricate.wellcasinglogs <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(c(
-      "fromdepth", "todepth"
-    )), ft_to_m)) |>
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(c(
+        "fromdepth",
+        "todepth"
+      )),
+      ft_to_m
+    )) |>
     dplyr::mutate(dplyr::across(dplyr::any_of("diameter"), inch_to_cm)) |>
     dplyr::mutate(dplyr::across(dplyr::any_of("othermaterials"), as.logical)) |>
     dplyr::rename(dplyr::any_of(
@@ -92,24 +99,31 @@ metricate.wellcasinglogs <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate chemicalanalysis
 metricate.chemicalanalysis <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("waterlevel"), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(c(
-      "aquifer", "remarks"
-    )), as.character))
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(c(
+        "aquifer",
+        "remarks"
+      )),
+      as.character
+    ))
 }
 
 #' @export
 #' @exportS3Method metricate drillingcompanies
 metricate.drillingcompanies <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("lastwellidused"), as.integer))
 }
 
 #' @export
 #' @exportS3Method metricate elements
 metricate.elements <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("decimalplaces"), as.integer))
 }
 
@@ -145,9 +159,11 @@ metricate.lithologies <- function(x, ...) {
   # the bottom depth of the uppermost unit
   x <- x |>
     dplyr::group_by(.data$wellreportid) |>
-    dplyr::mutate(lithdepthfrom = dplyr::lag(
-      .data$lithdepthto,
-      default = units::as_units(0, "m"))
+    dplyr::mutate(
+      lithdepthfrom = dplyr::lag(
+        .data$lithdepthto,
+        default = units::as_units(0, "m")
+      )
     ) |>
     dplyr::ungroup() |>
     dplyr::select(dplyr::any_of(
@@ -178,10 +194,13 @@ metricate.lithologies <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate otherseals
 metricate.otherseals <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::contains(c("from", "to", "at")) &
-                                  !dplyr::contains(c("date", "time")),
-                                ft_to_m)) |>
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(dplyr::across(
+      dplyr::contains(c("from", "to", "at")) &
+        !dplyr::contains(c("date", "time")),
+      ft_to_m
+    )) |>
     dplyr::rename(dplyr::any_of(
       c(
         sealdepthfrom = "from",
@@ -199,7 +218,11 @@ metricate.pumptests <- function(x, ...) {
     dplyr::mutate(
       dplyr::across(dplyr::any_of("takenfromtopofcasing"), inch_to_cm),
       dplyr::across(
-        dplyr::any_of(c("staticwaterlevel", "endwaterlevel", "removaldepthfrom")),
+        dplyr::any_of(c(
+          "staticwaterlevel",
+          "endwaterlevel",
+          "removaldepthfrom"
+        )),
         ft_to_m
       ),
       dplyr::across(dplyr::any_of("waterremovalrate"), igpm_to_lpm),
@@ -210,23 +233,33 @@ metricate.pumptests <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate pumptestitems
 metricate.pumptestitems <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::contains("minutes"), as.integer)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(c(
-      "pumpingdepth", "recoverydepth"
-    )), ft_to_m))
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(c(
+        "pumpingdepth",
+        "recoverydepth"
+      )),
+      ft_to_m
+    ))
 }
 
 #' @export
 #' @exportS3Method metricate screens
 metricate.screens <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of("screentype"), as.character)) |>
     dplyr::mutate(dplyr::across(dplyr::any_of("minutes"), as.integer)) |>
     dplyr::mutate(dplyr::across(dplyr::any_of(c("from", "to")), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(c(
-      "slotsize", "screeninsidediameter"
-    )), inch_to_cm)) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(c(
+        "slotsize",
+        "screeninsidediameter"
+      )),
+      inch_to_cm
+    )) |>
     dplyr::rename(dplyr::any_of(
       c(
         screendepthfrom = "from",
@@ -240,34 +273,43 @@ metricate.screens <- function(x, ...) {
 metricate.wells <- function(x, ...) {
   x <- x |>
     standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c("longitude", "latitude", "elevation")
-    ), as.numeric)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "distancenorth",
-        "distancesouth",
-        "distanceeast",
-        "distancewest",
-        "section",
-        "township",
-        "range",
-        "meridian"
-      )
-    ), as.integer)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "gpsobtained",
-        "elevationobtained",
-        "lot",
-        "block",
-        "plan",
-        "additionaldescription",
-        "goawelltagnumber",
-        "boundaryfrom",
-        "lsd"
-      )
-    ), as.character))
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c("longitude", "latitude", "elevation")
+      ),
+      as.numeric
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "distancenorth",
+          "distancesouth",
+          "distanceeast",
+          "distancewest",
+          "section",
+          "township",
+          "range",
+          "meridian"
+        )
+      ),
+      as.integer
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "gpsobtained",
+          "elevationobtained",
+          "lot",
+          "block",
+          "plan",
+          "additionaldescription",
+          "goawelltagnumber",
+          "boundaryfrom",
+          "lsd"
+        )
+      ),
+      as.character
+    ))
 
   # cleaning
   if ("goawelltagnumber" %in% names(x)) {
@@ -297,7 +339,9 @@ metricate.wells <- function(x, ...) {
 
   if ("additionaldescription" %in% names(x)) {
     x <- x |>
-      dplyr::mutate(additionaldescription = dplyr::na_if(.data$additionaldescription, ""))
+      dplyr::mutate(
+        additionaldescription = dplyr::na_if(.data$additionaldescription, "")
+      )
   }
 
   return(x)
@@ -306,10 +350,15 @@ metricate.wells <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate wellmaterialslogs
 metricate.wellmaterialslogs <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::contains(c(
-      "fromdepth", "todepth"
-    )), ft_to_m)) |>
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(dplyr::across(
+      dplyr::contains(c(
+        "fromdepth",
+        "todepth"
+      )),
+      ft_to_m
+    )) |>
     dplyr::rename(dplyr::any_of(c(
       wellmaterialdepthfrom = "fromdepth",
       wellmaterialdepthto = "todepth"
@@ -319,111 +368,140 @@ metricate.wellmaterialslogs <- function(x, ...) {
 #' @export
 #' @exportS3Method metricate welldecommissioningdetails
 metricate.welldecommissioningdetails <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "currentstaticwaterlevel",
-        "currentwelldepth",
-        "casingcutoffbelowgroundlevel"
-      )
-    ), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "iswelldisinfectedpriortoplugging",
-        "ispumpremoved",
-        "iscasingcutoffbelowgroundlevel",
-        "iswellreportcopygiventoowner",
-        "iscertify",
-        "iscompletedbyowner",
-        "iscompletedbydriller"
-      )
-    ), as.logical))
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "currentstaticwaterlevel",
+          "currentwelldepth",
+          "casingcutoffbelowgroundlevel"
+        )
+      ),
+      ft_to_m
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "iswelldisinfectedpriortoplugging",
+          "ispumpremoved",
+          "iscasingcutoffbelowgroundlevel",
+          "iswellreportcopygiventoowner",
+          "iscertify",
+          "iscompletedbyowner",
+          "iscompletedbydriller"
+        )
+      ),
+      as.logical
+    ))
 }
 
 #' @export
 #' @exportS3Method metricate wellreports
 metricate.wellreports <- function(x, ...) {
-  x |> standardize_awwid() |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "plugmaterialamount",
-        "annularsealamount",
-        "packamount",
-        "packgrainsize",
-        "divertedwateramount"
-      )
-    ), as.numeric)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "pluggedunits",
-        "modeloutputrating",
-        "divertedwatersource",
-        "pumphorsepower",
-        "pumpmodel",
-        "pumptypeinstalled",
-        "flowcontroldescription",
-        "screenbottomfittings",
-        "screentopfittings",
-        "screenattachment",
-        "screenmaterial",
-        "annularsealunits",
-        "pluggedunits",
-        "plugmaterialtype",
-        "otherwelluse",
-        "flowcontroldescription",
-        "createdby",
-        "submittedby"
-      )
-    ), as.character)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "totaldepthdrilled",
-        "finishedwelldepth",
-        "casingbottom",
-        "linertop",
-        "linerbottom",
-        "annularsealfrom",
-        "annularsealto",
-        "salinewaterdepth",
-        "gasdepth",
-        "recommendedintakedepth",
-        "pumpinstalleddepth"
-      )
-    ), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "casingod",
-        "casingthickness",
-        "linerod",
-        "screensizeod",
-        "distancecasingground",
-        "linerthickness"
-      )
-    ), inch_to_cm)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c("artesianflowrate",
-        "recommendedrate")
-    ), igpm_to_lpm)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c(
-        "remedialaction",
-        "welldisinfected",
-        "otherlog",
-        "issubmitted",
-        "isvalidated",
-        "drillingreportgiventoowner"
-      )
-    ), as.logical))
+  x |>
+    standardize_awwid() |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "plugmaterialamount",
+          "annularsealamount",
+          "packamount",
+          "packgrainsize",
+          "divertedwateramount"
+        )
+      ),
+      as.numeric
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "pluggedunits",
+          "modeloutputrating",
+          "divertedwatersource",
+          "pumphorsepower",
+          "pumpmodel",
+          "pumptypeinstalled",
+          "flowcontroldescription",
+          "screenbottomfittings",
+          "screentopfittings",
+          "screenattachment",
+          "screenmaterial",
+          "annularsealunits",
+          "pluggedunits",
+          "plugmaterialtype",
+          "otherwelluse",
+          "flowcontroldescription",
+          "createdby",
+          "submittedby"
+        )
+      ),
+      as.character
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "totaldepthdrilled",
+          "finishedwelldepth",
+          "casingbottom",
+          "linertop",
+          "linerbottom",
+          "annularsealfrom",
+          "annularsealto",
+          "salinewaterdepth",
+          "gasdepth",
+          "recommendedintakedepth",
+          "pumpinstalleddepth"
+        )
+      ),
+      ft_to_m
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "casingod",
+          "casingthickness",
+          "linerod",
+          "screensizeod",
+          "distancecasingground",
+          "linerthickness"
+        )
+      ),
+      inch_to_cm
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c("artesianflowrate", "recommendedrate")
+      ),
+      igpm_to_lpm
+    )) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c(
+          "remedialaction",
+          "welldisinfected",
+          "otherlog",
+          "issubmitted",
+          "isvalidated",
+          "drillingreportgiventoowner"
+        )
+      ),
+      as.logical
+    ))
 }
 
 #' @export
 #' @exportS3Method metricate perforations
 metricate.perforations <- function(x, ...) {
-  x |> standardize_awwid() |>
+  x |>
+    standardize_awwid() |>
     dplyr::mutate(dplyr::across(dplyr::any_of(c("from", "to")), ft_to_m)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of(
-      c("diameter", "interval", "distancebetween")
-    ), inch_to_cm)) |>
+    dplyr::mutate(dplyr::across(
+      dplyr::any_of(
+        c("diameter", "interval", "distancebetween")
+      ),
+      inch_to_cm
+    )) |>
     dplyr::rename(dplyr::any_of(
       c(
         perfdistance = "distancebetween",

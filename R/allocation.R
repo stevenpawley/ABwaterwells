@@ -46,7 +46,9 @@ allocate = function(lithologs, screens, model) {
   screens_picked = screens_picked |>
     dplyr::mutate(
       litholog_present = dplyr::if_else(
-        is.na(.data$litholog_present), FALSE, .data$litholog_present
+        is.na(.data$litholog_present),
+        FALSE,
+        .data$litholog_present
       )
     )
 
@@ -59,7 +61,11 @@ allocate = function(lithologs, screens, model) {
     pins::pin_download("dtb")
 
   unzip(dtb, exdir = tempdir())
-  dtb = terra::rast(file.path(tempdir(), "DIG_2023_0014", "depth_to_bedrock_10tm.tif"))
+  dtb = terra::rast(file.path(
+    tempdir(),
+    "DIG_2023_0014",
+    "depth_to_bedrock_10tm.tif"
+  ))
 
   screens_picked_prj = screens_picked |>
     terra::vect(geom = c("longitude", "latitude"), crs = "epsg:4326") |>
@@ -72,18 +78,22 @@ allocate = function(lithologs, screens, model) {
     dplyr::as_tibble()
 
   screens_picked_df = screens_picked_df |>
-    dplyr::mutate(bedrock_dep_source = dplyr::if_else(
-      .data$litholog_present == TRUE,
-      "nlp",
-      "interpolation"
-    ))
+    dplyr::mutate(
+      bedrock_dep_source = dplyr::if_else(
+        .data$litholog_present == TRUE,
+        "nlp",
+        "interpolation"
+      )
+    )
 
   screens_picked_df = screens_picked_df |>
-    dplyr::mutate(bedrock_dep = dplyr::if_else(
-      .data$litholog_present == FALSE,
-      .data$dtb,
-      .data$bedrock_dep
-    ))
+    dplyr::mutate(
+      bedrock_dep = dplyr::if_else(
+        .data$litholog_present == FALSE,
+        .data$dtb,
+        .data$bedrock_dep
+      )
+    )
 
   # allocated each completion interval to surficial or bedrock
   screens_completions = screens_picked_df |>
@@ -112,7 +122,9 @@ allocate = function(lithologs, screens, model) {
     )
 
   screens_completions = screens_completions |>
-    dplyr::select(-c("screen_thickness", "surficial_thickness", "bedrock_thickness"))
+    dplyr::select(
+      -c("screen_thickness", "surficial_thickness", "bedrock_thickness")
+    )
 
   screens_completions = dplyr::left_join(
     screens |> dplyr::select(c("gicwellid", "latitude", "longitude")),
