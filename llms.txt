@@ -103,7 +103,7 @@ to convert a table automatically:
 
 ``` r
 
-reports_df    <- metricate(reports)
+reports_df <- metricate(reports)
 lithologies_df <- metricate(lithologies)
 
 head(lithologies_df)
