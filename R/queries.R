@@ -158,9 +158,6 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
-#' @importFrom dplyr rename select left_join join_by bind_rows group_by summarize first ungroup mutate as_tibble filter distinct
-#' @importFrom tidyr drop_na
-#' @importFrom units as_units
 query_screens <- function(
   wells,
   wells_reports,
@@ -172,6 +169,7 @@ query_screens <- function(
   # Check that required "wells" columns are present
   required_well_cols <- c("gicwellid", "wellid", "longitude", "latitude")
   check_wells <- required_well_cols %in% names(wells)
+
   if (!all(check_wells)) {
     missing <- required_well_cols[!check_wells]
     missing <- paste(missing, collapse = ", ")
@@ -189,7 +187,7 @@ query_screens <- function(
 
   # Check that "wells_reports" is metricated
   if (!inherits(wells_reports$totaldepthdrilled, "units")) {
-    abort(
+    rlang::abort(
       "The `wells_reports` tibble must be metricated. Use the `metricate()` function."
     )
   }
@@ -208,7 +206,7 @@ query_screens <- function(
     !inherits(screens$screendepthfrom, "units") ||
       !inherits(screens$screendepthto, "units")
   ) {
-    abort(
+    rlang::abort(
       "The `screens` tibble must be metricated. Use the `metricate()` function."
     )
   }
@@ -227,93 +225,93 @@ query_screens <- function(
     !inherits(perforations$perfdepthfrom, "units") ||
       !inherits(perforations$perfdepthto, "units")
   ) {
-    abort(
+    rlang::abort(
       "The `perforations` tibble must be metricated. Use the `metricate()` function."
     )
   }
 
   # Rename perforations columns to match the names of the screens
   perfs <- perforations |>
-    rename(screendepthfrom = "perfdepthfrom", screendepthto = "perfdepthto") |>
-    select("wellreportid":"screendepthto")
+    dplyr::rename(screendepthfrom = "perfdepthfrom", screendepthto = "perfdepthto") |>
+    dplyr::select("wellreportid":"screendepthto")
 
   # create a lookup table to relate gic_well_id to the well_report_id
   wells_index <- wells |>
-    select(c("wellid", "gicwellid", "longitude", "latitude"))
+    dplyr::select(c("wellid", "gicwellid", "longitude", "latitude"))
 
   wells_reports_index <- wells_reports |>
-    select(c("wellid", "wellreportid"))
+    dplyr::select(c("wellid", "wellreportid"))
 
-  linking <- left_join(
+  linking <- dplyr::left_join(
     wells_reports_index,
     wells_index,
-    by = join_by("wellid")
+    by = dplyr::join_by("wellid")
   ) |>
-    select(-"wellid")
+    dplyr::select(-"wellid")
 
   # combine the perforations and screens
-  perfs <- left_join(perfs, linking, by = join_by("wellreportid"))
-  screens <- left_join(screens, linking, by = join_by("wellreportid"))
-  screens_perfs <- bind_rows(screens, perfs)
+  perfs <- dplyr::left_join(perfs, linking, by = dplyr::join_by("wellreportid"))
+  screens <- dplyr::left_join(screens, linking, by = dplyr::join_by("wellreportid"))
+  screens_perfs <- dplyr::bind_rows(screens, perfs)
 
   # aggregate the full depth range of screens/perfs for each well
   if (.aggregate) {
     screens_perfs <- screens_perfs |>
-      group_by(.data$gicwellid) |>
-      summarize(
-        wellreportid = first(.data$wellreportid, na_rm = TRUE),
-        longitude = first(.data$longitude, na_rm = TRUE),
-        latitude = first(.data$latitude, na_rm = TRUE),
+      dplyr::group_by(.data$gicwellid) |>
+      dplyr::summarize(
+        wellreportid = dplyr::first(.data$wellreportid, na_rm = TRUE),
+        longitude = dplyr::first(.data$longitude, na_rm = TRUE),
+        latitude = dplyr::first(.data$latitude, na_rm = TRUE),
         screendepthfrom = min(.data$screendepthfrom, na.rm = TRUE),
         screendepthto = max(.data$screendepthto, na.rm = TRUE)
       ) |>
-      ungroup() |>
-      mutate(
+      dplyr::ungroup() |>
+      dplyr::mutate(
         screendepthmid = .data$screendepthfrom +
           ((.data$screendepthto - .data$screendepthfrom) / 2)
       ) |>
-      as_tibble()
+      dplyr::as_tibble()
   } else {
     screens_perfs <- screens_perfs |>
-      select(all_of(c(
+      dplyr::select(dplyr::all_of(c(
         "wellreportid",
         "longitude",
         "latitude",
         "screendepthfrom",
         "screendepthto"
       ))) |>
-      mutate(
+      dplyr::mutate(
         screendepthmid = .data$screendepthfrom +
           ((.data$screendepthto - .data$screendepthfrom) / 2)
       ) |>
-      as_tibble()
+      dplyr::as_tibble()
   }
 
   # for wells with no screens/perfs, use the total depth drilled instead
   missing_screens <- wells_reports |>
-    filter(!.data$wellreportid %in% screens_perfs$wellreportid) |>
-    select("wellreportid", "totaldepthdrilled", "wellid") |>
-    rename(screendepthto = "totaldepthdrilled") |>
-    mutate(
-      screendepthfrom = .data$screendepthto - as_units(.assumed_top, "m"),
-      screendepthmid = .data$screendepthto - as_units(.assumed_top / 2, "m")
+    dplyr::filter(!.data$wellreportid %in% screens_perfs$wellreportid) |>
+    dplyr::select("wellreportid", "totaldepthdrilled", "wellid") |>
+    dplyr::rename(screendepthto = "totaldepthdrilled") |>
+    dplyr::mutate(
+      screendepthfrom = .data$screendepthto - units::as_units(.assumed_top, "m"),
+      screendepthmid = .data$screendepthto - units::as_units(.assumed_top / 2, "m")
     ) |>
-    drop_na("screendepthto") |>
-    distinct(.data$wellid, .keep_all = TRUE)
+    tidyr::drop_na("screendepthto") |>
+    dplyr::distinct(.data$wellid, .keep_all = TRUE)
 
   missing_screens <-
-    left_join(
+    dplyr::left_join(
       missing_screens,
-      select(wells, c("wellid", "gicwellid", "latitude", "longitude")),
+      dplyr::select(wells, c("wellid", "gicwellid", "latitude", "longitude")),
       by = "wellid"
     ) |>
-    select(-"wellid") |>
-    filter(.data$screendepthto > as_units(0, "m"))
+    dplyr::select(-"wellid") |>
+    dplyr::filter(.data$screendepthto > units::as_units(0, "m"))
 
   screens_merged <-
-    bind_rows(screens_perfs, missing_screens) |>
-    distinct(.data$gicwellid, .keep_all = TRUE) |>
-    drop_na(c("gicwellid", "latitude", "longitude"))
+    dplyr::bind_rows(screens_perfs, missing_screens) |>
+    dplyr::distinct(.data$gicwellid, .keep_all = TRUE) |>
+    tidyr::drop_na(c("gicwellid", "latitude", "longitude"))
 
   col_order <- c(
     "gicwellid",
@@ -325,8 +323,8 @@ query_screens <- function(
     "screendepthmid"
   )
   screens_merged <- screens_merged |>
-    select(!!!col_order) |>
-    as_tibble()
+    dplyr::select(!!!col_order) |>
+    dplyr::as_tibble()
 
   return(screens_merged)
 }
@@ -346,20 +344,22 @@ query_screens <- function(
 #' @return tibble
 #' @export
 #' @examples
-#' wells <-
-#'   request_awwid("wells", select = "wellid,gicwellid,longitude,latitude") |>
-#'   metricate()
+#' con <- awwid_connect()
 #'
-#' well_reports <-
-#'   request_awwid("wellreports", select = "wellid,wellreportid") |>
-#'   metricate()
+#' wells <- awwid_tbl(
+#'   con$wells,
+#'   select = c("wellid", "gicwellid", "longitude", "latitude")
+#' ) |> metricate()
 #'
-#' pumptests <-
-#'   request_awwid(
-#'     "pumptests",
-#'     select = "wellreportid,staticwaterlevel,testdate"
-#' ) |>
-#'   metricate()
+#' well_reports <- awwid_tbl(
+#'   con$wellreports,
+#'   select = c("wellid", "wellreportid")
+#' ) |> metricate()
+#'
+#' pumptests <- awwid_tbl(
+#'   con$pumptests,
+#'   select = c("wellreportid", "staticwaterlevel", "testdate")
+#' ) |> metricate()
 #'
 #' query_staticwater(wells, well_reports, pumptests) |>
 #'   tidyr::drop_na(staticwaterlevel)

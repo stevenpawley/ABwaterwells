@@ -10,3 +10,8 @@
 ^\.github$
 ^[.]?air[.]toml$
 ^\.vscode$
+^_targets\.R$
+^_targets$
+^examples$
+^\.positai$
+^\.claude$

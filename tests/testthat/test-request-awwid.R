@@ -1,7 +1,7 @@
 test_that("awwid_connect returns an awwid_connection with awwid_table fields", {
   con <- awwid_connect()
   expect_s3_class(con, "awwid_connection")
-  expect_s3_class(con$wells, "awwid_table")
+  expect_type(con$wells, "character")
   expect_true(length(con) > 0)
 })
 
@@ -10,7 +10,7 @@ test_that("awwid_tbl via awwid_table descriptor returns the correct S3 class aft
 
   tables <- names(con)
   for (tbl in tables) {
-    df <- awwid_tbl(con[[tbl]], top = 10) |> metricate()
+    df <- awwid_tbl(tbl, top = 10) |> metricate()
     expect_true(inherits(df, tbl))
     expect_gt(nrow(df), 0, label = tbl)
   }

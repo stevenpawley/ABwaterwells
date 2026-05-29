@@ -9,3 +9,5 @@
 #'   assigned a zero value.}
 #' }
 "materials"
+
+utils::globalVariables("materials")

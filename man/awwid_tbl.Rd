@@ -2,22 +2,9 @@
 % Please edit documentation in R/request.R
 \name{awwid_tbl}
 \alias{awwid_tbl}
-\alias{awwid_tbl.awwid_table}
-\alias{awwid_tbl.character}
 \title{Fetch AWWID data from the AEPA OData server}
 \usage{
-awwid_tbl(table, ...)
-
-\method{awwid_tbl}{awwid_table}(
-  table,
-  filter = NULL,
-  select = NULL,
-  top = NULL,
-  chunk_size = 10000L,
-  .progress = FALSE
-)
-
-\method{awwid_tbl}{character}(
+awwid_tbl(
   table,
   filter = NULL,
   select = NULL,
@@ -27,8 +14,8 @@ awwid_tbl(table, ...)
 )
 }
 \arguments{
-\item{table}{an `awwid_table` descriptor from [awwid_connect()], or a
-character string naming the table.}
+\item{table}{character string naming the table, or a field from
+[awwid_connect()] (e.g. `con$wells`).}
 
 \item{filter}{OData filter expression to select rows server-side.}
 
@@ -47,10 +34,9 @@ testing.}
 a tibble
 }
 \description{
-Downloads a table from the AWWID OData service. The `table` argument accepts
-either a character string or an `awwid_table` descriptor from
-[awwid_connect()], which avoids typing table names as strings and enables
-tab completion.
+Downloads a table from the AWWID OData service. Pass a field from
+[awwid_connect()] (e.g. `con$wells`) for tab-completion, or a plain
+character string for programmatic use.
 }
 \details{
 Tables larger than `chunk_size` rows are downloaded in parallel chunks using

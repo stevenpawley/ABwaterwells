@@ -10,14 +10,15 @@ awwid_connect()
 an `awwid_connection` object.
 }
 \description{
-Fetches the list of available tables and returns a connection object whose
-named fields are `awwid_table` descriptors — one per table. Pass any field
-directly to [awwid_tbl()] instead of typing a table name as a string.
+Fetches the list of available tables and returns a connection object. Each
+table is accessible as a named field (e.g. `con$wells`, `con$wellreports`),
+which can be passed directly to [awwid_tbl()], [awwid_count()], or
+[awwid_chunk()] — giving tab-completion without typing table names as strings.
 }
 \examples{
 con <- awwid_connect()
 con
 
 awwid_tbl(con$wells, top = 10)
-awwid_tbl(con$wellreports, select = c("wellid", "totaldepthdrilled"))
+awwid_count(con$wellreports)
 }

@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1.0)
 Imports: 
     dplyr,
     terra,
@@ -21,13 +21,8 @@ Imports:
     rlang,
     lubridate,
     units,
-    utils,
-    data.table,
-    pins,
-    pbapply,
-    furrr,
-    dtplyr,
     tidyr,
+    targets,
     stats
 Suggests: 
     testthat (>= 3.0.0)

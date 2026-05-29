@@ -25,20 +25,22 @@ tibble
 Predefined query to extract a table of static water levels
 }
 \examples{
-wells <-
-  request_awwid("wells", select = "wellid,gicwellid,longitude,latitude") |>
-  metricate()
+con <- awwid_connect()
 
-well_reports <-
-  request_awwid("wellreports", select = "wellid,wellreportid") |>
-  metricate()
+wells <- awwid_tbl(
+  con$wells,
+  select = c("wellid", "gicwellid", "longitude", "latitude")
+) |> metricate()
 
-pumptests <-
-  request_awwid(
-    "pumptests",
-    select = "wellreportid,staticwaterlevel,testdate"
-) |>
-  metricate()
+well_reports <- awwid_tbl(
+  con$wellreports,
+  select = c("wellid", "wellreportid")
+) |> metricate()
+
+pumptests <- awwid_tbl(
+  con$pumptests,
+  select = c("wellreportid", "staticwaterlevel", "testdate")
+) |> metricate()
 
 query_staticwater(wells, well_reports, pumptests) |>
   tidyr::drop_na(staticwaterlevel)

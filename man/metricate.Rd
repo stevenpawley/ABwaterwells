@@ -7,7 +7,7 @@
 metricate(x, ...)
 }
 \arguments{
-\item{x}{tibble of data derived from `request_awwid`}
+\item{x}{tibble returned by [awwid_tbl()]}
 
 \item{...}{additional arguments that are currently unused}
 }

@@ -37,7 +37,7 @@ standardize_awwid <- function(x) {
 
 #' Convert a tibble of water well related data into metric units
 #'
-#' @param x tibble of data derived from `request_awwid`
+#' @param x tibble returned by [awwid_tbl()]
 #' @param ... additional arguments that are currently unused
 #'
 #' @return a tibble
@@ -135,30 +135,18 @@ metricate.lithologies <- function(x, ...) {
     c("depth", "wellreportid", "material", "description")
 
   if (!all(required_cols %in% names(x))) {
-    rlang::abort(glue::glue("need {required_cols} in data"))
+    abort(glue("need {required_cols} in data"))
   }
 
-  # standardize columns and data types
   x <- x |>
     standardize_awwid() |>
-    dplyr::mutate(depth = ft_to_m(.data$depth)) |>
-    dplyr::mutate(dplyr::across(dplyr::any_of("waterbearing"), as.logical)) |>
-    dplyr::rename(lithdepthto = "depth")
-
-  # calculate int_top_dep
-  # awwid depth intervals represent 'to_depth', so the first row records
-  # the bottom depth of the uppermost unit
-  # sort each log by depth
-  x <- x |>
+    dplyr::mutate(
+      depth = ft_to_m(.data$depth),
+      dplyr::across(dplyr::any_of("waterbearing"), as.logical)
+    ) |>
+    dplyr::rename(lithdepthto = "depth") |>
     dplyr::group_by(.data$wellreportid) |>
     dplyr::arrange(.data$lithdepthto, .by_group = TRUE) |>
-    dplyr::ungroup()
-
-  # calculate int_top_dep
-  # awwid depth intervals represent 'to_depth', so the first row records
-  # the bottom depth of the uppermost unit
-  x <- x |>
-    dplyr::group_by(.data$wellreportid) |>
     dplyr::mutate(
       lithdepthfrom = dplyr::lag(
         .data$lithdepthto,
