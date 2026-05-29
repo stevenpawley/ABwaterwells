@@ -44,9 +44,9 @@ con
 
 ## Accessing tables by name
 
-Pass any field from the connection object directly to `awwid_tbl()`. Your IDE
-will tab-complete the available table names — no need to type or remember them
-as strings.
+Pass any field from the connection object directly to `awwid_tbl()`. Most IDEs
+will tab-complete the available table names, without the need to type or remember them
+as characters.
 
 ```{r named-methods}
 wells <- awwid_tbl(
@@ -71,7 +71,7 @@ head(lithologies)
 
 ## Looping over multiple tables
 
-For programmatic use — iterating over a variable set of table names — pass a
+For programmatic use such as iterating over a variable set of table names, pass a
 character string to `awwid_tbl()` directly, or index into the connection object
 with `[[`:
 
