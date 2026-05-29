@@ -28,6 +28,9 @@ AwwidQuery = R6::R6Class(
     #' @field progress purrr progress bar options
     progress = TRUE,
 
+    #' @field chunk_size Integer, number of rows per chunk when paginating large tables.
+    chunk_size = 10000L,
+
     #' @description
     #' Initialize a connection to the AEPA web server
     #' @param cache whether to internally cache the results of the requests.
@@ -36,13 +39,16 @@ AwwidQuery = R6::R6Class(
     #'   TRUE.
     #' @param retry_max_tries Integer, maximum number of retries for failed requests.
     #' @param retry_backoff Integer, number of seconds to wait between retries.
+    #' @param chunk_size Integer, number of rows per download chunk when paginating.
     #' @param .progress purrr progress bar options
     #' @return a R6 class.
-    initialize = function(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L, .progress = TRUE) {
+    initialize = function(cache = TRUE, retry_max_tries = 10L, retry_backoff = 10L,
+                          chunk_size = 10000L, .progress = TRUE) {
       self$tables = tolower(private$list_tables())
       self$cache = cache
       self$retry_max_tries = retry_max_tries
       self$retry_backoff = retry_backoff
+      self$chunk_size = chunk_size
       self$progress = .progress
     },
 
@@ -57,8 +63,10 @@ AwwidQuery = R6::R6Class(
     #'   rows.
     #' @return a R6 class.
     request = function(name, filter = NULL, select = NULL, top = NULL) {
+      name = tolower(name)
+
       # some checks
-      if (!tolower(name) %in% tolower(self$tables)) {
+      if (!name %in% self$tables) {
         stop(glue::glue(
           "`name` must be one of {tables}",
           tables = paste(self$tables, collapse = ", ")
@@ -83,53 +91,61 @@ AwwidQuery = R6::R6Class(
         query = c(query, glue::glue("$select={select}"))
       }
 
-      # count number of records that request will generate
-      query_count = c(query, "$count=true")
-      query_count = paste(query_count, collapse = "&")
-      query_count = paste0("?", query_count)
-      resp = file.path(self$url, name, query_count) |>
-        httr2::request() |>
+      # check for previously cached results
+      request_tag = private$add_query_options(name, query, top = top)
+      if (!is.null(private$caching[[request_tag]])) {
+        return(private$caching[[request_tag]])
+      }
+
+      # count number of records that request will generate ($top=0 avoids transferring rows)
+      query_count = paste(c(query, "$count=true", "$top=0"), collapse = "&")
+      count_url = paste0(paste(self$url, name, sep = "/"), "?", query_count)
+      resp = httr2::request(count_url) |>
         httr2::req_retry(
           max_tries = self$retry_max_tries,
           is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
           backoff = \(resp) self$retry_backoff
         ) |>
         httr2::req_perform(verbosity = 0)
-      
-      counts = as.integer(httr2::resp_body_json(resp)[["@odata.count"]])
 
-      # check for previously cached results
-      request_tag = private$add_query_options(name, query, top = top)
-      if (!is.null(private$caching[[request_tag]])) {
-        tbl = private$caching[[request_tag]]
-        return(tbl)
+      count_val = httr2::resp_body_json(resp)[["@odata.count"]]
+      if (is.null(count_val)) {
+        stop("Server did not return @odata.count; verify that the OData service supports $count.")
       }
+      counts = as.integer(count_val)
 
-      # perform request in chunks of 10000 rows (REST max)
-      if ((is.null(top) || top > 10000) & counts > 10000) {
-        df = purrr::map(
-          seq(0L, counts, by = 10000L),
-          function(skip, name, query) {
-            request_url = private$add_query_options(name, query, skip)
-            private$get_query(request_url)
-          },
-          name = name,
-          query = query,
-          .progress = self$progress
-        )
+      # perform request in parallel chunks, ordered by primary key for deterministic pagination
+      if ((is.null(top) || top > self$chunk_size) & counts > self$chunk_size) {
+        # discover primary key column (original casing) for $orderby
+        pk_url = private$add_query_options(name, query, top = 1L)
+        pk_resp = private$build_request(pk_url) |> httr2::req_perform(verbosity = 0)
+        pk_col = names(jsonlite::fromJSON(httr2::resp_body_string(pk_resp))$value)[1]
+
+        reqs = lapply(seq(0L, counts - 1L, by = self$chunk_size), function(skip) {
+          url = private$add_query_options(
+            name,
+            c(query, glue::glue("$orderby={pk_col}")),
+            skip = skip,
+            top = self$chunk_size
+          )
+          private$build_request(url)
+        })
+        resps = httr2::req_perform_parallel(reqs, on_error = "continue", progress = self$progress)
+        errors = !vapply(resps, inherits, logical(1), "httr2_response")
+        if (any(errors)) {
+          stop(sum(errors), " chunk(s) failed to download; try increasing retry attempts.")
+        }
+        df = data.table::rbindlist(lapply(resps, private$parse_odata_response))
         request_url = private$add_query_options(name, query)
-        df = data.table::rbindlist(df)
       } else {
         request_url = private$add_query_options(name, query, top = top)
         df = private$get_query(request_url)
-        df = data.table::as.data.table(df)
       }
 
       data.table::setkeyv(df, names(df)[1])
       tbl = TblAwwid$new(name = name, x = df, request = request_url)
 
       if (self$cache) {
-        request_tag = private$add_query_options(name, query, top = top)
         private$caching[[request_tag]] = tbl$clone()
       }
 
@@ -244,7 +260,7 @@ AwwidQuery = R6::R6Class(
       # request screens data
       message("requesting `screens` table")
       screen_cols = c("screenid", "wellreportid", "from", "to")
-      screens = con$request("screens", select = screen_cols)$metricate()
+      screens = self$request("screens", select = screen_cols)$metricate()
 
       # request perforations data
       message("requesting `perforations` table")
@@ -257,14 +273,14 @@ AwwidQuery = R6::R6Class(
       wells_reports = wells_reports[, .SD, .SDcols = selected_cols]
 
       # combine the perforations and screens
-      perfs_gicwellid = merge(perfs, linking, by = "wellreportid")
+      perfs_gicwellid = merge(perfs, wells_reports, by = "wellreportid")
       data.table::setnames(
         perfs_gicwellid,
         c("perfdepthfrom", "perfdepthto"),
         c("screendepthfrom", "screendepthto")
       )
 
-      screens_gicwellid = merge(screens, linking, by = "wellreportid")
+      screens_gicwellid = merge(screens, wells_reports, by = "wellreportid")
       screens_perfs = rbind(screens_gicwellid, perfs_gicwellid, fill = TRUE)
 
       # aggregate the maximum depth range of screens/perfs for each well
@@ -354,7 +370,7 @@ AwwidQuery = R6::R6Class(
       pumptests = pumptests[, .SD[order(testdate)], by = "gicwellid", env = list(testdate = "testdate")]
 
       if (keep_method == "newest") {
-        pumptests_agg = pumptests[, data.table::first(.SD), by = "gicwellid"]
+        pumptests_agg = pumptests[, data.table::last(.SD), by = "gicwellid"]
 
       } else if (keep_method %in% c("average", "maximum", "minimum")) {
         aggfunc = switch(
@@ -384,7 +400,7 @@ AwwidQuery = R6::R6Class(
     #' Clear the internal cache of previous requests
     #' @return NULL
     clear_cache = function() {
-      self$private$caching = list()
+      private$caching = list()
     }
   ),
 
@@ -402,48 +418,40 @@ AwwidQuery = R6::R6Class(
         httr2::resp_body_string() |>
         jsonlite::fromJSON()
 
-      return(metadata$value$name[1:25])
+      return(metadata$value$name)
     },
 
     add_query_options = function(tablename, query, skip = NULL, top = NULL) {
-      if (!is.null(skip)) {
-        query = c(query, glue::glue("$skip={skip}"))
-      }
-
-      if (!is.null(top)) {
-        query = c(query, glue::glue("$top={top}"))
-      }
+      if (!is.null(skip)) query = c(query, glue::glue("$skip={skip}"))
+      if (!is.null(top)) query = c(query, glue::glue("$top={top}"))
 
       query = paste(query, collapse = "&")
-      query = paste0("?", query)
-
-      file.path(self$url, tablename, query)
+      url = paste(self$url, tablename, sep = "/")
+      if (nzchar(query)) url = paste0(url, "?", query)
+      url
     },
 
-    get_query = function(base_url) {
-      # create and run request object
-      resp = base_url |>
-        httr2::request() |>
+    build_request = function(url) {
+      httr2::request(url) |>
         httr2::req_cache(path = tempdir()) |>
         httr2::req_retry(
           max_tries = self$retry_max_tries,
           is_transient = ~ httr2::resp_status(.x) %in% c(429, 500, 503),
           backoff = \(resp) self$retry_backoff
         )
+    },
 
-      result = resp |>
-        httr2::req_perform(verbosity = 0)
+    parse_odata_response = function(resp) {
+      result = httr2::resp_body_string(resp) |> jsonlite::fromJSON()
+      dt = data.table::as.data.table(result$value)
+      data.table::setnames(dt, tolower(names(dt)))
+      dt
+    },
 
-      # coerce output to json
-      result = result |>
-        httr2::resp_body_string() |>
-        jsonlite::fromJSON()
-
-      # coerce to datatable
-      df = data.table::as.data.table(result$value)
-      data.table::setnames(df, tolower(names(df)))
-
-      return(df)
+    get_query = function(url) {
+      private$build_request(url) |>
+        httr2::req_perform(verbosity = 0) |>
+        private$parse_odata_response()
     },
 
     add_ground_elevation = function(logs) {

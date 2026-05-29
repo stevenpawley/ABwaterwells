@@ -1,101 +1,67 @@
-test_that("test awwid functions", {
-  df <- request_awwid("Wells", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "wells")
+test_that("AwwidQuery$request returns a TblAwwid object", {
+  con <- AwwidQuery$new()
+  tbl <- con$request("Wells", top = 10)
+  expect_true(inherits(tbl, "TblAwwid"))
+})
 
-  df <- request_awwid("AnalysisItems", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "analysisitems")
+test_that("AwwidQuery$request metricate returns a data.table", {
+  con <- AwwidQuery$new()
 
-  df <- request_awwid("Boreholes", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "boreholes")
+  tables <- c(
+    "Wells", "AnalysisItems", "Boreholes", "MaterialOptions", "WellCasingLogs",
+    "PlacementMethodOptions", "ChemicalAnalysis", "Drillers", "DrillingCompanies",
+    "Elements", "GeophysicalLogs", "Lithologies", "OtherSeals", "Perforations",
+    "PumpTests", "PumpTestItems", "Screens", "UnitOptions", "PlugMaterialOptions",
+    "CasingStatus", "WellMaterialsLogs", "WellDecommissioningDetails",
+    "WellDecommissioningReasons", "WellOwners", "WellReports"
+  )
 
-  df <- request_awwid("MaterialOptions", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "materialoptions")
+  for (tbl in tables) {
+    df <- con$request(tbl, top = 10)$metricate()
+    expect_s3_class(df, "data.table")
+    expect_gt(nrow(df), 0, label = tbl)
+  }
+})
 
-  df <- request_awwid("WellCasingLogs", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "wellcasinglogs")
+test_that("AwwidQuery$request caches results", {
+  con <- AwwidQuery$new()
+  con$request("Wells", top = 10)
+  expect_false(is.null(con$.__enclos_env__$private$caching[[1]]))
+})
 
-  df <- request_awwid("PlacementMethodOptions", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "placementmethodoptions")
+test_that("AwwidQuery$request rejects unknown table names", {
+  con <- AwwidQuery$new()
+  expect_error(con$request("NotATable"), regexp = "`name` must be one of")
+})
 
-  df <- request_awwid("ChemicalAnalysis", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "chemicalanalysis")
+test_that("request row count matches @odata.count", {
+  con <- AwwidQuery$new(cache = FALSE)
+  name <- "materialoptions"
+  count_url <- paste0(con$url, "/", name, "?$count=true&$top=0")
+  resp_body <- httr2::request(count_url) |>
+    httr2::req_perform() |>
+    httr2::resp_body_json()
+  expected_count <- as.integer(resp_body[["@odata.count"]])
 
-  df <- request_awwid("Drillers", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "drillers")
+  result <- con$request(name)
+  expect_equal(nrow(result$data), expected_count)
+})
 
-  df <- request_awwid("DrillingCompanies", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "drillingcompanies")
+test_that("chunked download matches single-request download and has no duplicates", {
+  name <- "materialoptions"
 
-  df <- request_awwid("Elements", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "elements")
+  con_single <- AwwidQuery$new(cache = FALSE)
+  direct <- con_single$request(name)$data
 
-  df <- request_awwid("GeophysicalLogs", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "geophysicallogs")
+  # chunk_size = 2 forces many small chunks, exercising the parallel path
+  con_chunked <- AwwidQuery$new(cache = FALSE, chunk_size = 2L)
+  chunked <- con_chunked$request(name)$data
 
-  df <- request_awwid("Lithologies", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "lithologies")
+  key_col <- names(direct)[1]
+  data.table::setkeyv(direct, key_col)
+  data.table::setkeyv(chunked, key_col)
 
-  df <- request_awwid("OtherSeals", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "otherseals")
-
-  df <- request_awwid("Perforations", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "perforations")
-
-  df <- request_awwid("PumpTests", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "pumptests")
-
-  df <- request_awwid("PumpTestItems", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "pumptestitems")
-
-  df <- request_awwid("Screens", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "screens")
-
-  df <- request_awwid("UnitOptions", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "unitoptions")
-
-  df <- request_awwid("PlugMaterialOptions", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "plugmaterialoptions")
-
-  df <- request_awwid("CasingStatus", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "casingstatus")
-
-  df <- request_awwid("WellMaterialsLogs", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "wellmaterialslogs")
-
-  df <- request_awwid("WellDecommissioningDetails", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "welldecommissioningdetails")
-
-  df <- request_awwid("WellDecommissioningReasons", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "welldecommissioningreasons")
-
-  df <- request_awwid("WellOwners", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "wellowners")
-
-  df <- request_awwid("WellReports", top = 10) |>
-    metricate()
-  testthat::expect_s3_class(df, "wellreports")
+  expect_equal(nrow(chunked), nrow(direct))
+  expect_false(anyDuplicated(chunked[[key_col]]) > 0)
+  expect_equal(chunked[[key_col]], direct[[key_col]])
 })

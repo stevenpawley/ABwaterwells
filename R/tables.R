@@ -75,7 +75,7 @@ TblAwwid = R6::R6Class(
     },
 
     igpm_to_lpm = function(x) {
-      units::as_units(x * 4.54609, "L/m")
+      units::as_units(x * 4.54609, "L/min")
     },
 
     metricate_default = function(x) {
