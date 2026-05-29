@@ -2,37 +2,58 @@
 % Please edit documentation in R/request.R
 \name{awwid_tbl}
 \alias{awwid_tbl}
+\alias{awwid_tbl.awwid_table}
+\alias{awwid_tbl.character}
 \title{Fetch AWWID data from the AEPA OData server}
 \usage{
-awwid_tbl(name, filter = NULL, select = NULL, top = NULL, .progress = FALSE)
+awwid_tbl(table, ...)
+
+\method{awwid_tbl}{awwid_table}(
+  table,
+  filter = NULL,
+  select = NULL,
+  top = NULL,
+  chunk_size = 10000L,
+  .progress = FALSE
+)
+
+\method{awwid_tbl}{character}(
+  table,
+  filter = NULL,
+  select = NULL,
+  top = NULL,
+  chunk_size = 10000L,
+  .progress = FALSE
+)
 }
 \arguments{
-\item{name}{name of the AWWID table.}
+\item{table}{an `awwid_table` descriptor from [awwid_connect()], or a
+character string naming the table.}
 
-\item{filter}{filter query to select rows using REST expressions. The query
-can limit the data using 'eq' in place of 'equal-to', and 'le' in place of
-'less-than', and 'gt' in place of 'greater-than'.}
+\item{filter}{OData filter expression to select rows server-side.}
 
-\item{select}{character vector of columns to select from the table. By
-default, all columns will be returned.}
+\item{select}{character vector of columns to return. By default all columns
+are returned.}
 
-\item{top}{Limit the results using the 'top' rows}
+\item{top}{integer, return only the first n rows.}
 
-\item{.progress}{logical, if TRUE, show a progress bar when fetching
-multiple requests.}
+\item{chunk_size}{integer, number of rows per download chunk when paginating.
+Reducing this value forces chunking on small tables, which is useful for
+testing.}
+
+\item{.progress}{logical, show a progress bar when downloading chunks.}
 }
 \value{
 a tibble
 }
 \description{
-Fetch AWWID data from the AEPA OData server
+Downloads a table from the AWWID OData service. The `table` argument accepts
+either a character string or an `awwid_table` descriptor from
+[awwid_connect()], which avoids typing table names as strings and enables
+tab completion.
 }
 \details{
-AWWID can can be obtained through standard REST requests to
-<https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata>
-}
-\examples{
-awwid_tbl("wells", top = 10)
-
-awwid_tbl("wells", top = 10, columns = c("gicwellid", "wellid"))
+Tables larger than `chunk_size` rows are downloaded in parallel chunks using
+a deterministic `$orderby` on the primary key to prevent gaps or duplicates
+at chunk boundaries.
 }

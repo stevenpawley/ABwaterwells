@@ -1,0 +1,45 @@
+url: https://stevenpawley.github.io/ABwaterwells/
+template:
+  bootstrap: 5
+
+reference:
+  - title: "Connection and data access"
+    desc: >
+      Connect to the AEPA AWWID OData service and download tables.
+      `awwid_connect()` returns a connection object whose named fields are
+      table descriptors — pass any field to `awwid_tbl()` for tab-completion
+      without typing table names as strings.
+    contents:
+      - awwid_connect
+      - awwid_tbl
+      - awwid_list_tables
+
+  - title: "Metric conversion"
+    desc: >
+      Data in AWWID is stored in imperial units. `metricate()` dispatches on
+      the S3 class assigned by `awwid_tbl()` and applies the correct
+      conversions for each table.
+    contents:
+      - metricate
+      - starts_with("metricate.")
+
+  - title: "Predefined queries"
+    desc: >
+      Multi-table queries for common workflows. Each function accepts
+      already-downloaded, metricated tibbles as arguments so downloads and
+      processing are kept separate.
+    contents:
+      - query_lithologs
+      - query_screens
+      - query_staticwater
+
+  - title: "Analysis"
+    desc: "Functions for interpreting and classifying water well data."
+    contents:
+      - pick_bedrock
+      - allocate
+
+  - title: "Datasets"
+    desc: "Reference data bundled with the package."
+    contents:
+      - materials

@@ -13,8 +13,7 @@
 #' @export
 #' @importFrom rlang abort
 #' @importFrom glue glue
-#' @importFrom dplyr rename rename_with select left_join join_by na_if as_tibble
-#'   any_of all_of contains
+#' @importFrom dplyr rename rename_with select left_join join_by na_if as_tibble any_of all_of contains
 #' @importFrom tidyr drop_na
 #' @importFrom units drop_units
 query_lithologs <- function(wells, well_reports, lithologies) {
@@ -151,8 +150,7 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
-#' @importFrom dplyr rename select left_join join_by bind_rows group_by summarize
-#'  first ungroup mutate as_tibble filter distinct
+#' @importFrom dplyr rename select left_join join_by bind_rows group_by summarize first ungroup mutate as_tibble filter distinct
 #' @importFrom tidyr drop_na
 #' @importFrom units as_units
 query_screens <- function(wells, wells_reports, screens, perforations, .aggregate = TRUE,

@@ -7,11 +7,8 @@
 awwid_list_tables()
 }
 \value{
-a character voect
+a character vector of table names available on the OData service.
 }
 \description{
 List AWWID database tables
-}
-\examples{
-awwid_list_awwid()
 }

@@ -8,7 +8,7 @@ inch_to_cm <- function(x) {
 }
 
 igpm_to_lpm <- function(x) {
-  units::as_units(x * 4.54609, "L/m")
+  units::as_units(x * 4.54609, "L/min")
 }
 
 # internal functions ----
