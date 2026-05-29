@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/stevenpawley/ABwaterwells/graph/badge.svg)](https://app.codecov.io/gh/stevenpawley/ABwaterwells)
 <!-- badges: end -->
 
 **ABwaterwells** provides an R interface to the [Alberta Water Well Information Database](https://www.alberta.ca/alberta-water-well-information-database) (AWWID) via its OData web service. Large tables are downloaded in parallel chunks and automatically converted from imperial to metric units.

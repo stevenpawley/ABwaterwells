@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **ABwaterwells** provides an R interface to the [Alberta Water Well
