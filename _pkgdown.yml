@@ -33,12 +33,6 @@ reference:
       - query_screens
       - query_staticwater
 
-  - title: "Analysis"
-    desc: "Functions for interpreting and classifying water well data."
-    contents:
-      - pick_bedrock
-      - allocate
-
   - title: "Datasets"
     desc: "Reference data bundled with the package."
     contents:
