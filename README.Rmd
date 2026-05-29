@@ -108,17 +108,22 @@ lithologs
 ```
 
 ```{r queries-screens, eval = FALSE}
-screens      <- awwid_tbl(con$screens,
-                          filter = "wellreportid gt 40000 and wellreportid lt 41000")
-perforations <- awwid_tbl(con$perforations,
-                          filter = "wellreportid gt 40000 and wellreportid lt 41000")
+screens <- awwid_tbl(
+  con$screens,
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
+)
+
+perforations <- awwid_tbl(
+  con$perforations,
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
+)
 
 query_screens(
-  wells        = wells,
+  wells = wells,
   wells_reports = reports_df,
-  screens      = metricate(screens),
+  screens = metricate(screens),
   perforations = metricate(perforations),
-  .aggregate   = TRUE,
+  .aggregate = TRUE,
   .assumed_top = 5
 )
 ```
