@@ -1,0 +1,24 @@
+url: https://stevenpawley.github.io/ABwaterwells/
+template:
+  bootstrap: 5
+
+reference:
+  - title: "Connection and data access"
+    desc: >
+      Connect to the AEPA AWWID web server and download tables using the OData
+      protocol. `AwwidQuery` provides named methods for each table (e.g.
+      `$wells()`, `$lithologies()`) as well as pre-built multi-table queries
+      for common workflows.
+    contents:
+      - AwwidQuery
+
+  - title: "Analysis"
+    desc: "Functions for interpreting and classifying water well data."
+    contents:
+      - pick_bedrock
+      - allocate
+
+  - title: "Datasets"
+    desc: "Reference data bundled with the package."
+    contents:
+      - materials

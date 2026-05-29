@@ -8,183 +8,212 @@ An R6 object that contains methods to request tables from the AWWID web server
 using the OData protocol
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{url}}{The base URL}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{url}}{The base URL}
 
-\item{\code{tables}}{A character vector of tables that are contained in AWWID.}
+    \item{\code{tables}}{A character vector of tables that are contained in AWWID.}
 
-\item{\code{cache}}{Logical to indicate whether the results from the
+    \item{\code{cache}}{Logical to indicate whether the results from the
 queries/requests will be cached.}
 
-\item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
+    \item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
 
-\item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
+    \item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
 
-\item{\code{progress}}{purrr progress bar options}
-}
-\if{html}{\out{</div>}}
+    \item{\code{progress}}{purrr progress bar options}
+
+    \item{\code{chunk_size}}{Integer, number of rows per chunk when paginating large tables.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-AwwidQuery-new}{\code{AwwidQuery$new()}}
-\item \href{#method-AwwidQuery-request}{\code{AwwidQuery$request()}}
-\item \href{#method-AwwidQuery-query_lithologs}{\code{AwwidQuery$query_lithologs()}}
-\item \href{#method-AwwidQuery-query_screens}{\code{AwwidQuery$query_screens()}}
-\item \href{#method-AwwidQuery-query_water_level}{\code{AwwidQuery$query_water_level()}}
-\item \href{#method-AwwidQuery-clear_cache}{\code{AwwidQuery$clear_cache()}}
-\item \href{#method-AwwidQuery-clone}{\code{AwwidQuery$clone()}}
-}
+  \itemize{
+    \item \href{#method-AwwidQuery-initialize}{\code{AwwidQuery$new()}}
+    \item \href{#method-AwwidQuery-request}{\code{AwwidQuery$request()}}
+    \item \href{#method-AwwidQuery-query_lithologs}{\code{AwwidQuery$query_lithologs()}}
+    \item \href{#method-AwwidQuery-query_screens}{\code{AwwidQuery$query_screens()}}
+    \item \href{#method-AwwidQuery-query_water_level}{\code{AwwidQuery$query_water_level()}}
+    \item \href{#method-AwwidQuery-clear_cache}{\code{AwwidQuery$clear_cache()}}
+    \item \href{#method-AwwidQuery-wells}{\code{AwwidQuery$wells()}}
+    \item \href{#method-AwwidQuery-wellreports}{\code{AwwidQuery$wellreports()}}
+    \item \href{#method-AwwidQuery-lithologies}{\code{AwwidQuery$lithologies()}}
+    \item \href{#method-AwwidQuery-boreholes}{\code{AwwidQuery$boreholes()}}
+    \item \href{#method-AwwidQuery-screens}{\code{AwwidQuery$screens()}}
+    \item \href{#method-AwwidQuery-perforations}{\code{AwwidQuery$perforations()}}
+    \item \href{#method-AwwidQuery-pumptests}{\code{AwwidQuery$pumptests()}}
+    \item \href{#method-AwwidQuery-pumptestitems}{\code{AwwidQuery$pumptestitems()}}
+    \item \href{#method-AwwidQuery-chemicalanalysis}{\code{AwwidQuery$chemicalanalysis()}}
+    \item \href{#method-AwwidQuery-analysisitems}{\code{AwwidQuery$analysisitems()}}
+    \item \href{#method-AwwidQuery-elements}{\code{AwwidQuery$elements()}}
+    \item \href{#method-AwwidQuery-wellcasinglogs}{\code{AwwidQuery$wellcasinglogs()}}
+    \item \href{#method-AwwidQuery-wellmaterialslogs}{\code{AwwidQuery$wellmaterialslogs()}}
+    \item \href{#method-AwwidQuery-otherseals}{\code{AwwidQuery$otherseals()}}
+    \item \href{#method-AwwidQuery-geophysicallogs}{\code{AwwidQuery$geophysicallogs()}}
+    \item \href{#method-AwwidQuery-drillers}{\code{AwwidQuery$drillers()}}
+    \item \href{#method-AwwidQuery-drillingcompanies}{\code{AwwidQuery$drillingcompanies()}}
+    \item \href{#method-AwwidQuery-wellowners}{\code{AwwidQuery$wellowners()}}
+    \item \href{#method-AwwidQuery-welldecommissioningdetails}{\code{AwwidQuery$welldecommissioningdetails()}}
+    \item \href{#method-AwwidQuery-welldecommissioningreasons}{\code{AwwidQuery$welldecommissioningreasons()}}
+    \item \href{#method-AwwidQuery-materialoptions}{\code{AwwidQuery$materialoptions()}}
+    \item \href{#method-AwwidQuery-unitoptions}{\code{AwwidQuery$unitoptions()}}
+    \item \href{#method-AwwidQuery-plugmaterialoptions}{\code{AwwidQuery$plugmaterialoptions()}}
+    \item \href{#method-AwwidQuery-placementmethodoptions}{\code{AwwidQuery$placementmethodoptions()}}
+    \item \href{#method-AwwidQuery-casingstatus}{\code{AwwidQuery$casingstatus()}}
+    \item \href{#method-AwwidQuery-clone}{\code{AwwidQuery$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AwwidQuery-new"></a>}}
-\if{latex}{\out{\hypertarget{method-AwwidQuery-new}{}}}
-\subsection{Method \code{new()}}{
-Initialize a connection to the AEPA web server
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$new(
+\if{html}{\out{<a id="method-AwwidQuery-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-initialize}{}}}
+\subsection{\code{AwwidQuery$new()}}{
+  Initialize a connection to the AEPA web server
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$new(
   cache = TRUE,
   retry_max_tries = 10L,
   retry_backoff = 10L,
+  chunk_size = 10000L,
   .progress = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{cache}}{whether to internally cache the results of the requests.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{cache}}{whether to internally cache the results of the requests.
 This can increase performance for example, for queries where the wells
 or well reports tables need to be repeatedly downloaded. The default is
 TRUE.}
+      \item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
+      \item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
+      \item{\code{chunk_size}}{Integer, number of rows per download chunk when paginating.}
+      \item{\code{.progress}}{purrr progress bar options}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a R6 class.
+  }
+}
 
-\item{\code{retry_max_tries}}{Integer, maximum number of retries for failed requests.}
-
-\item{\code{retry_backoff}}{Integer, number of seconds to wait between retries.}
-
-\item{\code{.progress}}{purrr progress bar options}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-a R6 class.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-request"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-request}{}}}
-\subsection{Method \code{request()}}{
-Request a table from the web server with options to filter the data
+\subsection{\code{AwwidQuery$request()}}{
+  Request a table from the web server with options to filter the data
 on the server using OData conventions
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$request(name, filter = NULL, select = NULL, top = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{name, }}{name of the table to download.}
-
-\item{\code{filter}}{odata compatible query to filter the data before
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$request(name, filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name, }}{name of the table to download.}
+      \item{\code{filter}}{odata compatible query to filter the data before
 downloading.}
-
-\item{\code{select}}{a character vector of columns to select.}
-
-\item{\code{top}}{integer, optionally return only the first specified number of
+      \item{\code{select}}{a character vector of columns to select.}
+      \item{\code{top}}{integer, optionally return only the first specified number of
 rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a R6 class.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-a R6 class.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-query_lithologs"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-query_lithologs}{}}}
-\subsection{Method \code{query_lithologs()}}{
-Predefined query to extract a table of lithologs data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$query_lithologs(ext = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ext}}{optional numeric vector specifying the rectangular bounding box
+\subsection{\code{AwwidQuery$query_lithologs()}}{
+  Predefined query to extract a table of lithologs data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$query_lithologs(ext = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{ext}}{optional numeric vector specifying the rectangular bounding box
 of wells to return. Must be specified as c(xmin, ymin, xmax, ymax).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-The 'query_lithologs' function combines well identifer and location
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    The 'query_lithologs' function combines well identifer and location
 information from the 'wells' and 'wellreports' tables, with interval
 descriptions from the 'lithologies' table.
+  }
+  \subsection{Returns}{
+    a data.table.
+  }
 }
 
-\subsection{Returns}{
-a data.table.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-query_screens"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-query_screens}{}}}
-\subsection{Method \code{query_screens()}}{
-Predefined query to extract a table of combined screen and perforation
+\subsection{\code{AwwidQuery$query_screens()}}{
+  Predefined query to extract a table of combined screen and perforation
 depths
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$query_screens(ext = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ext}}{optionally provide a character vector to specify the
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$query_screens(ext = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{ext}}{optionally provide a character vector to specify the
 geographic extent of the downloaded data, in the order of
 c(xmin, ymin, xmax, ymax).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-The query downloads the screens and perforations tables. For wells that
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    The query downloads the screens and perforations tables. For wells that
 contain multiple screen/perforation depth intervals, the
 screen/perforation depths are aggregated by taking the top depth as the
 minimum depth of the combined screens, and the bottom depth as the
 maximum depth of the combined screens.
+  }
+  \subsection{Returns}{
+    return a data.table of depth to well screens.
+  }
 }
 
-\subsection{Returns}{
-return a data.table of depth to well screens.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-query_water_level"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-query_water_level}{}}}
-\subsection{Method \code{query_water_level()}}{
-Predefined query to extract a table of static water depths from AWWID
+\subsection{\code{AwwidQuery$query_water_level()}}{
+  Predefined query to extract a table of static water depths from AWWID
 based on the pump tests table
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$query_water_level(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$query_water_level(
   ext = NULL,
   keep = c("all", "newest", "average", "maximum", "minimum")
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ext}}{optional numeric vector specifying the rectangular bounding box
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{ext}}{optional numeric vector specifying the rectangular bounding box
 of wells to return. Must be specified as c(xmin, ymin, xmax, ymax).}
-
-\item{\code{keep}}{character, method to use to aggregate wells that contain
+      \item{\code{keep}}{character, method to use to aggregate wells that contain
 multiple pump test measurements. One of c("newest", "average",
 "maximum", "minimum").}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-The query downloads the wells, well reports and pump tests tables. These
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    The query downloads the wells, well reports and pump tests tables. These
 are joined based on getting the linking the well reports to the wells
 table using the 'wellid' column. We do this because the well reports
 table also contains the 'gicwellid'. Then we join the pump tests table to
@@ -193,40 +222,644 @@ the previous dataset based on the 'wellreportid'.
 To get the static water depth, we use the 'staticwaterlevel' column. For
 wells that have multiple pump tests, the method specified in 'keep' is
 used. The default is to retain only the newest test.
+  }
+  \subsection{Returns}{
+    returns a data.table of static water levels.
+  }
 }
 
-\subsection{Returns}{
-returns a data.table of static water levels.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-clear_cache"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-clear_cache}{}}}
-\subsection{Method \code{clear_cache()}}{
-Clear the internal cache of previous requests
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$clear_cache()}\if{html}{\out{</div>}}
+\subsection{\code{AwwidQuery$clear_cache()}}{
+  Clear the internal cache of previous requests
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$clear_cache()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    NULL
+  }
 }
 
-\subsection{Returns}{
-NULL
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-wells"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-wells}{}}}
+\subsection{\code{AwwidQuery$wells()}}{
+  Request the `wells` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$wells(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
 }
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-wellreports"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-wellreports}{}}}
+\subsection{\code{AwwidQuery$wellreports()}}{
+  Request the `wellreports` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$wellreports(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
 }
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-lithologies"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-lithologies}{}}}
+\subsection{\code{AwwidQuery$lithologies()}}{
+  Request the `lithologies` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$lithologies(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-boreholes"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-boreholes}{}}}
+\subsection{\code{AwwidQuery$boreholes()}}{
+  Request the `boreholes` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$boreholes(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-screens"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-screens}{}}}
+\subsection{\code{AwwidQuery$screens()}}{
+  Request the `screens` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$screens(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-perforations"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-perforations}{}}}
+\subsection{\code{AwwidQuery$perforations()}}{
+  Request the `perforations` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$perforations(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-pumptests"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-pumptests}{}}}
+\subsection{\code{AwwidQuery$pumptests()}}{
+  Request the `pumptests` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$pumptests(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-pumptestitems"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-pumptestitems}{}}}
+\subsection{\code{AwwidQuery$pumptestitems()}}{
+  Request the `pumptestitems` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$pumptestitems(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-chemicalanalysis"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-chemicalanalysis}{}}}
+\subsection{\code{AwwidQuery$chemicalanalysis()}}{
+  Request the `chemicalanalysis` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$chemicalanalysis(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-analysisitems"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-analysisitems}{}}}
+\subsection{\code{AwwidQuery$analysisitems()}}{
+  Request the `analysisitems` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$analysisitems(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-elements"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-elements}{}}}
+\subsection{\code{AwwidQuery$elements()}}{
+  Request the `elements` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$elements(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-wellcasinglogs"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-wellcasinglogs}{}}}
+\subsection{\code{AwwidQuery$wellcasinglogs()}}{
+  Request the `wellcasinglogs` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$wellcasinglogs(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-wellmaterialslogs"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-wellmaterialslogs}{}}}
+\subsection{\code{AwwidQuery$wellmaterialslogs()}}{
+  Request the `wellmaterialslogs` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$wellmaterialslogs(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-otherseals"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-otherseals}{}}}
+\subsection{\code{AwwidQuery$otherseals()}}{
+  Request the `otherseals` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$otherseals(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-geophysicallogs"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-geophysicallogs}{}}}
+\subsection{\code{AwwidQuery$geophysicallogs()}}{
+  Request the `geophysicallogs` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$geophysicallogs(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-drillers"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-drillers}{}}}
+\subsection{\code{AwwidQuery$drillers()}}{
+  Request the `drillers` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$drillers(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-drillingcompanies"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-drillingcompanies}{}}}
+\subsection{\code{AwwidQuery$drillingcompanies()}}{
+  Request the `drillingcompanies` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$drillingcompanies(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-wellowners"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-wellowners}{}}}
+\subsection{\code{AwwidQuery$wellowners()}}{
+  Request the `wellowners` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$wellowners(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-welldecommissioningdetails"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-welldecommissioningdetails}{}}}
+\subsection{\code{AwwidQuery$welldecommissioningdetails()}}{
+  Request the `welldecommissioningdetails` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$welldecommissioningdetails(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-welldecommissioningreasons"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-welldecommissioningreasons}{}}}
+\subsection{\code{AwwidQuery$welldecommissioningreasons()}}{
+  Request the `welldecommissioningreasons` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$welldecommissioningreasons(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-materialoptions"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-materialoptions}{}}}
+\subsection{\code{AwwidQuery$materialoptions()}}{
+  Request the `materialoptions` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$materialoptions(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-unitoptions"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-unitoptions}{}}}
+\subsection{\code{AwwidQuery$unitoptions()}}{
+  Request the `unitoptions` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$unitoptions(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-plugmaterialoptions"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-plugmaterialoptions}{}}}
+\subsection{\code{AwwidQuery$plugmaterialoptions()}}{
+  Request the `plugmaterialoptions` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$plugmaterialoptions(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-placementmethodoptions"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-placementmethodoptions}{}}}
+\subsection{\code{AwwidQuery$placementmethodoptions()}}{
+  Request the `placementmethodoptions` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$placementmethodoptions(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AwwidQuery-casingstatus"></a>}}
+\if{latex}{\out{\hypertarget{method-AwwidQuery-casingstatus}{}}}
+\subsection{\code{AwwidQuery$casingstatus()}}{
+  Request the `casingstatus` table.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$casingstatus(filter = NULL, select = NULL, top = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{filter}}{OData filter expression.}
+      \item{\code{select}}{character vector of column names to select.}
+      \item{\code{top}}{integer, return only the first n rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a TblAwwid object.
+  }
+}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AwwidQuery-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-AwwidQuery-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AwwidQuery$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{AwwidQuery$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AwwidQuery$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

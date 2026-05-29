@@ -8,98 +8,102 @@ a `TblAwwid` R6 class
 }
 \description{
 AWWID table class
-
-AWWID table class
 }
 \keyword{internal}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{name}}{name of the table}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{name}}{name of the table}
 
-\item{\code{data}}{a data.table of the table data}
+    \item{\code{data}}{a data.table of the table data}
 
-\item{\code{request}}{the URL request that was made to obtain the table}
-}
-\if{html}{\out{</div>}}
+    \item{\code{request}}{the URL request that was made to obtain the table}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-TblAwwid-new}{\code{TblAwwid$new()}}
-\item \href{#method-TblAwwid-print}{\code{TblAwwid$print()}}
-\item \href{#method-TblAwwid-metricate}{\code{TblAwwid$metricate()}}
-\item \href{#method-TblAwwid-clone}{\code{TblAwwid$clone()}}
-}
+  \itemize{
+    \item \href{#method-TblAwwid-initialize}{\code{TblAwwid$new()}}
+    \item \href{#method-TblAwwid-print}{\code{TblAwwid$print()}}
+    \item \href{#method-TblAwwid-metricate}{\code{TblAwwid$metricate()}}
+    \item \href{#method-TblAwwid-clone}{\code{TblAwwid$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TblAwwid-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TblAwwid-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new 'TblAwwid' object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TblAwwid$new(x, name, request)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-TblAwwid-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-TblAwwid-initialize}{}}}
+\subsection{\code{TblAwwid$new()}}{
+  Create a new 'TblAwwid' object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TblAwwid$new(x, name, request)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{x}}{a data.table of the table data}
+      \item{\code{name}}{name of the table}
+      \item{\code{request}}{the URL string that was used to request the table}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{a data.table of the table data}
-
-\item{\code{name}}{name of the table}
-
-\item{\code{request}}{the URL string that was used to request the table}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TblAwwid-print"></a>}}
 \if{latex}{\out{\hypertarget{method-TblAwwid-print}{}}}
-\subsection{Method \code{print()}}{
-Print method for the 'TblAwwid' class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TblAwwid$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{TblAwwid$print()}}{
+  Print method for the 'TblAwwid' class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TblAwwid$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{additional arguments (not used)}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly returns the object itself
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{additional arguments (not used)}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Invisibly returns the object itself
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TblAwwid-metricate"></a>}}
 \if{latex}{\out{\hypertarget{method-TblAwwid-metricate}{}}}
-\subsection{Method \code{metricate()}}{
-Standardize a TblAwwid object by converting all measurement columns
+\subsection{\code{TblAwwid$metricate()}}{
+  Standardize a TblAwwid object by converting all measurement columns
 from imperial units to metric equivalents, and renaming some column
 names to avoid name collisions when joining tables
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TblAwwid$metricate()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TblAwwid$metricate()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TblAwwid-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-TblAwwid-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TblAwwid$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{TblAwwid$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TblAwwid$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

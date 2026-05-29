@@ -1,31 +1,30 @@
-test_that("AwwidQuery$request returns a TblAwwid object", {
+test_that("named table methods return a TblAwwid object", {
   con <- AwwidQuery$new()
-  tbl <- con$request("Wells", top = 10)
-  expect_true(inherits(tbl, "TblAwwid"))
+  expect_true(inherits(con$wells(top = 10), "TblAwwid"))
 })
 
-test_that("AwwidQuery$request metricate returns a data.table", {
+test_that("named table methods metricate to a non-empty data.table", {
   con <- AwwidQuery$new()
 
-  tables <- c(
-    "Wells", "AnalysisItems", "Boreholes", "MaterialOptions", "WellCasingLogs",
-    "PlacementMethodOptions", "ChemicalAnalysis", "Drillers", "DrillingCompanies",
-    "Elements", "GeophysicalLogs", "Lithologies", "OtherSeals", "Perforations",
-    "PumpTests", "PumpTestItems", "Screens", "UnitOptions", "PlugMaterialOptions",
-    "CasingStatus", "WellMaterialsLogs", "WellDecommissioningDetails",
-    "WellDecommissioningReasons", "WellOwners", "WellReports"
+  methods <- c(
+    "wells", "analysisitems", "boreholes", "materialoptions", "wellcasinglogs",
+    "placementmethodoptions", "chemicalanalysis", "drillers", "drillingcompanies",
+    "elements", "geophysicallogs", "lithologies", "otherseals", "perforations",
+    "pumptests", "pumptestitems", "screens", "unitoptions", "plugmaterialoptions",
+    "casingstatus", "wellmaterialslogs", "welldecommissioningdetails",
+    "welldecommissioningreasons", "wellowners", "wellreports"
   )
 
-  for (tbl in tables) {
-    df <- con$request(tbl, top = 10)$metricate()
-    expect_s3_class(df, "data.table")
-    expect_gt(nrow(df), 0, label = tbl)
+  for (m in methods) {
+    df <- con[[m]](top = 10)$metricate()
+    expect_true(inherits(df, "data.table"), info = m)
+    expect_gt(nrow(df), 0, label = m)
   }
 })
 
 test_that("AwwidQuery$request caches results", {
   con <- AwwidQuery$new()
-  con$request("Wells", top = 10)
+  con$wells(top = 10)
   expect_false(is.null(con$.__enclos_env__$private$caching[[1]]))
 })
 
@@ -43,19 +42,17 @@ test_that("request row count matches @odata.count", {
     httr2::resp_body_json()
   expected_count <- as.integer(resp_body[["@odata.count"]])
 
-  result <- con$request(name)
+  result <- con$materialoptions()
   expect_equal(nrow(result$data), expected_count)
 })
 
 test_that("chunked download matches single-request download and has no duplicates", {
-  name <- "materialoptions"
-
   con_single <- AwwidQuery$new(cache = FALSE)
-  direct <- con_single$request(name)$data
+  direct <- con_single$materialoptions()$data
 
   # chunk_size = 2 forces many small chunks, exercising the parallel path
   con_chunked <- AwwidQuery$new(cache = FALSE, chunk_size = 2L)
-  chunked <- con_chunked$request(name)$data
+  chunked <- con_chunked$materialoptions()$data
 
   key_col <- names(direct)[1]
   data.table::setkeyv(direct, key_col)

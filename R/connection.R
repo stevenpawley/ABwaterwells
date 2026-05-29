@@ -1,5 +1,6 @@
 # AwwidQuery R6 class ----
 
+
 #' Create a connection to the AEPA AWWID web server
 #'
 #' @description
@@ -401,6 +402,231 @@ AwwidQuery = R6::R6Class(
     #' @return NULL
     clear_cache = function() {
       private$caching = list()
+    },
+
+    #' @description Request the `wells` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    wells = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("wells", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `wellreports` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    wellreports = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("wellreports", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `lithologies` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    lithologies = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("lithologies", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `boreholes` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    boreholes = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("boreholes", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `screens` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    screens = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("screens", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `perforations` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    perforations = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("perforations", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `pumptests` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    pumptests = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("pumptests", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `pumptestitems` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    pumptestitems = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("pumptestitems", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `chemicalanalysis` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    chemicalanalysis = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("chemicalanalysis", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `analysisitems` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    analysisitems = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("analysisitems", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `elements` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    elements = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("elements", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `wellcasinglogs` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    wellcasinglogs = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("wellcasinglogs", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `wellmaterialslogs` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    wellmaterialslogs = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("wellmaterialslogs", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `otherseals` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    otherseals = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("otherseals", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `geophysicallogs` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    geophysicallogs = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("geophysicallogs", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `drillers` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    drillers = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("drillers", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `drillingcompanies` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    drillingcompanies = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("drillingcompanies", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `wellowners` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    wellowners = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("wellowners", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `welldecommissioningdetails` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    welldecommissioningdetails = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("welldecommissioningdetails", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `welldecommissioningreasons` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    welldecommissioningreasons = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("welldecommissioningreasons", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `materialoptions` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    materialoptions = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("materialoptions", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `unitoptions` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    unitoptions = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("unitoptions", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `plugmaterialoptions` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    plugmaterialoptions = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("plugmaterialoptions", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `placementmethodoptions` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    placementmethodoptions = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("placementmethodoptions", filter = filter, select = select, top = top)
+    },
+
+    #' @description Request the `casingstatus` table.
+    #' @param filter OData filter expression.
+    #' @param select character vector of column names to select.
+    #' @param top integer, return only the first n rows.
+    #' @return a TblAwwid object.
+    casingstatus = function(filter = NULL, select = NULL, top = NULL) {
+      self$request("casingstatus", filter = filter, select = select, top = top)
     }
   ),
 
