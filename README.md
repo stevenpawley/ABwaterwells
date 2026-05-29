@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stevenpawley/ABwaterwells/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/stevenpawley/ABwaterwells/graph/badge.svg)](https://app.codecov.io/gh/stevenpawley/ABwaterwells)
 <!-- badges: end -->
 
 **ABwaterwells** provides an R interface to the [Alberta Water Well
@@ -47,8 +49,8 @@ con
 ## Accessing tables by name
 
 Pass any field from the connection object directly to `awwid_tbl()`.
-Your IDE will tab-complete the available table names — no need to type
-or remember them as strings.
+Most IDEs will tab-complete the available table names, without the need
+to type or remember them as characters.
 
 ``` r
 wells <- awwid_tbl(
@@ -83,9 +85,9 @@ head(lithologies)
 
 ## Looping over multiple tables
 
-For programmatic use — iterating over a variable set of table names —
-pass a character string to `awwid_tbl()` directly, or index into the
-connection object with `[[`:
+For programmatic use such as iterating over a variable set of table
+names, pass a character string to `awwid_tbl()` directly, or index into
+the connection object with `[[`:
 
 ``` r
 tables_to_download <- c("wells", "wellreports", "lithologies")
@@ -148,17 +150,22 @@ lithologs
 ```
 
 ``` r
-screens      <- awwid_tbl(con$screens,
-                          filter = "wellreportid gt 40000 and wellreportid lt 41000")
-perforations <- awwid_tbl(con$perforations,
-                          filter = "wellreportid gt 40000 and wellreportid lt 41000")
+screens <- awwid_tbl(
+  con$screens,
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
+)
+
+perforations <- awwid_tbl(
+  con$perforations,
+  filter = "wellreportid gt 40000 and wellreportid lt 41000"
+)
 
 query_screens(
-  wells        = wells,
+  wells = wells,
   wells_reports = reports_df,
-  screens      = metricate(screens),
+  screens = metricate(screens),
   perforations = metricate(perforations),
-  .aggregate   = TRUE,
+  .aggregate = TRUE,
   .assumed_top = 5
 )
 ```
