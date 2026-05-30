@@ -232,7 +232,10 @@ query_screens <- function(
 
   # Rename perforations columns to match the names of the screens
   perfs <- perforations |>
-    dplyr::rename(screendepthfrom = "perfdepthfrom", screendepthto = "perfdepthto") |>
+    dplyr::rename(
+      screendepthfrom = "perfdepthfrom",
+      screendepthto = "perfdepthto"
+    ) |>
     dplyr::select("wellreportid":"screendepthto")
 
   # create a lookup table to relate gic_well_id to the well_report_id
@@ -251,7 +254,11 @@ query_screens <- function(
 
   # combine the perforations and screens
   perfs <- dplyr::left_join(perfs, linking, by = dplyr::join_by("wellreportid"))
-  screens <- dplyr::left_join(screens, linking, by = dplyr::join_by("wellreportid"))
+  screens <- dplyr::left_join(
+    screens,
+    linking,
+    by = dplyr::join_by("wellreportid")
+  )
   screens_perfs <- dplyr::bind_rows(screens, perfs)
 
   # aggregate the full depth range of screens/perfs for each well
@@ -293,8 +300,10 @@ query_screens <- function(
     dplyr::select("wellreportid", "totaldepthdrilled", "wellid") |>
     dplyr::rename(screendepthto = "totaldepthdrilled") |>
     dplyr::mutate(
-      screendepthfrom = .data$screendepthto - units::as_units(.assumed_top, "m"),
-      screendepthmid = .data$screendepthto - units::as_units(.assumed_top / 2, "m")
+      screendepthfrom = .data$screendepthto -
+        units::as_units(.assumed_top, "m"),
+      screendepthmid = .data$screendepthto -
+        units::as_units(.assumed_top / 2, "m")
     ) |>
     tidyr::drop_na("screendepthto") |>
     dplyr::distinct(.data$wellid, .keep_all = TRUE)

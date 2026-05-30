@@ -225,7 +225,11 @@ awwid_metadata <- list(
     ),
     list(
       pk = "wellcasinglogid",
-      fk = c("welldecommissioningdetailid", "plugmaterialoptionid", "casingstatusid")
+      fk = c(
+        "welldecommissioningdetailid",
+        "plugmaterialoptionid",
+        "casingstatusid"
+      )
     )
   ),
 

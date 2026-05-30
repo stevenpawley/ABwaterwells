@@ -72,39 +72,53 @@ awwid_metadata_xml <- function() {
     nav_nodes <- xml2::xml_find_all(et, "edm:NavigationProperty", ns)
     if (length(nav_nodes) == 0L) {
       return(data.frame(
-        name                = character(),
-        related_entity      = character(),
-        local_property      = character(),
+        name = character(),
+        related_entity = character(),
+        local_property = character(),
         referenced_property = character(),
-        stringsAsFactors    = FALSE
+        stringsAsFactors = FALSE
       ))
     }
 
     # Strip the namespace-qualified prefix and any Collection(...) wrapper so
     # the entity name is readable (e.g. "Collection(GoA...Borehole)" -> "Borehole")
     types <- xml2::xml_attr(nav_nodes, "Type")
-    related <- gsub("[()]", "", types)       # remove Collection( and trailing )
-    related <- sub(".*\\.", "", related)     # keep only the final dotted segment
+    related <- gsub("[()]", "", types) # remove Collection( and trailing )
+    related <- sub(".*\\.", "", related) # keep only the final dotted segment
 
     # ReferentialConstraint holds the actual FK -> PK column mapping
-    local_props <- vapply(nav_nodes, function(n) {
-      rc <- xml2::xml_find_first(n, "edm:ReferentialConstraint", ns)
-      if (inherits(rc, "xml_missing")) NA_character_
-      else xml2::xml_attr(rc, "Property")
-    }, character(1))
+    local_props <- vapply(
+      nav_nodes,
+      function(n) {
+        rc <- xml2::xml_find_first(n, "edm:ReferentialConstraint", ns)
+        if (inherits(rc, "xml_missing")) {
+          NA_character_
+        } else {
+          xml2::xml_attr(rc, "Property")
+        }
+      },
+      character(1)
+    )
 
-    ref_props <- vapply(nav_nodes, function(n) {
-      rc <- xml2::xml_find_first(n, "edm:ReferentialConstraint", ns)
-      if (inherits(rc, "xml_missing")) NA_character_
-      else xml2::xml_attr(rc, "ReferencedProperty")
-    }, character(1))
+    ref_props <- vapply(
+      nav_nodes,
+      function(n) {
+        rc <- xml2::xml_find_first(n, "edm:ReferentialConstraint", ns)
+        if (inherits(rc, "xml_missing")) {
+          NA_character_
+        } else {
+          xml2::xml_attr(rc, "ReferencedProperty")
+        }
+      },
+      character(1)
+    )
 
     data.frame(
-      name                = xml2::xml_attr(nav_nodes, "Name"),
-      related_entity      = related,
-      local_property      = local_props,
+      name = xml2::xml_attr(nav_nodes, "Name"),
+      related_entity = related,
+      local_property = local_props,
       referenced_property = ref_props,
-      stringsAsFactors    = FALSE
+      stringsAsFactors = FALSE
     )
   })
 

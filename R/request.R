@@ -1,7 +1,4 @@
-build_query_url <- function(base_url,
-                            query,
-                            skip = NULL,
-                            top = NULL) {
+build_query_url <- function(base_url, query, skip = NULL, top = NULL) {
   if (!is.null(skip)) {
     query <- c(query, glue("$skip={skip}"))
   }
@@ -9,10 +6,11 @@ build_query_url <- function(base_url,
     query <- c(query, glue("$top={top}"))
   }
   qs <- paste(query, collapse = "&")
-  if (nzchar(qs))
+  if (nzchar(qs)) {
     paste0(base_url, "?", qs)
-  else
+  } else {
     base_url
+  }
 }
 
 build_request <- function(url) {
@@ -30,10 +28,7 @@ parse_odata_response <- function(resp) {
   dplyr::as_tibble(result$value) |> dplyr::rename_with(tolower)
 }
 
-get_query <- function(base_url,
-                      query,
-                      skip = NULL,
-                      top = NULL) {
+get_query <- function(base_url, query, skip = NULL, top = NULL) {
   build_query_url(base_url, query, skip = skip, top = top) |>
     build_request() |>
     httr2::req_perform() |>
@@ -60,16 +55,17 @@ get_query <- function(base_url,
 #' awwid_count(con$wellreports)
 awwid_connect <- function() {
   tables <- tolower(awwid_list_tables())
-  structure(stats::setNames(as.list(tables), tables), class = "awwid_connection")
+  structure(
+    stats::setNames(as.list(tables), tables),
+    class = "awwid_connection"
+  )
 }
 
 #' @export
 print.awwid_connection <- function(x, ...) {
   tables <- names(x)
   cat(sprintf("<awwid_connection> [%d tables]\n", length(tables)))
-  lines <- strwrap(paste(tables, collapse = ", "),
-                   width = 72,
-                   prefix = "  ")
+  lines <- strwrap(paste(tables, collapse = ", "), width = 72, prefix = "  ")
   cat(paste(lines, collapse = "\n"), "\n", sep = "")
   invisible(x)
 }
@@ -105,7 +101,9 @@ awwid_count <- function(table) {
 
   count_val <- httr2::resp_body_json(resp)[["@odata.count"]]
   if (is.null(count_val)) {
-    abort("Server did not return @odata.count; verify the OData service supports $count.")
+    abort(
+      "Server did not return @odata.count; verify the OData service supports $count."
+    )
   }
   as.integer(count_val)
 }
@@ -131,11 +129,13 @@ awwid_count <- function(table) {
 #' con <- awwid_connect()
 #' awwid_chunk(con$wells, skip = 0L,     top = 10000L)
 #' awwid_chunk(con$wells, skip = 10000L, top = 10000L)
-awwid_chunk <- function(table,
-                        skip = 0L,
-                        top = 10000L,
-                        filter = NULL,
-                        select = NULL) {
+awwid_chunk <- function(
+  table,
+  skip = 0L,
+  top = 10000L,
+  filter = NULL,
+  select = NULL
+) {
   url <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
   name <- tolower(table)
   r <- paste(url, name, sep = "/")
@@ -181,12 +181,14 @@ awwid_chunk <- function(table,
 #'
 #' @return a tibble
 #' @export
-awwid_tbl <- function(table,
-                      filter = NULL,
-                      select = NULL,
-                      top = NULL,
-                      chunk_size = 10000L,
-                      .progress = FALSE) {
+awwid_tbl <- function(
+  table,
+  filter = NULL,
+  select = NULL,
+  top = NULL,
+  chunk_size = 10000L,
+  .progress = FALSE
+) {
   url <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
   name <- tolower(table)
 
@@ -229,7 +231,11 @@ awwid_tbl <- function(table,
   }
 
   # count records ($top=0 avoids transferring rows)
-  count_url <- paste0(r, "?", paste(c(query, "$count=true", "$top=0"), collapse = "&"))
+  count_url <- paste0(
+    r,
+    "?",
+    paste(c(query, "$count=true", "$top=0"), collapse = "&")
+  )
   resp <- httr2::request(count_url) |>
     httr2::req_retry(
       max_tries = 15,
@@ -240,7 +246,9 @@ awwid_tbl <- function(table,
 
   count_val <- httr2::resp_body_json(resp)[["@odata.count"]]
   if (is.null(count_val)) {
-    abort("Server did not return @odata.count; verify that the OData service supports $count.")
+    abort(
+      "Server did not return @odata.count; verify that the OData service supports $count."
+    )
   }
   counts <- as.integer(count_val)
 
@@ -248,7 +256,9 @@ awwid_tbl <- function(table,
   if ((is.null(top) || top > chunk_size) && counts > chunk_size) {
     pk_resp <- build_request(build_query_url(r, query, top = 1L)) |>
       httr2::req_perform(verbosity = 0)
-    pk_col <- names(jsonlite::fromJSON(httr2::resp_body_string(pk_resp))$value)[1]
+    pk_col <- names(jsonlite::fromJSON(httr2::resp_body_string(pk_resp))$value)[
+      1
+    ]
 
     reqs <- lapply(seq(0L, counts - 1L, by = chunk_size), function(skip) {
       build_request(build_query_url(
@@ -259,7 +269,11 @@ awwid_tbl <- function(table,
       ))
     })
 
-    resps <- httr2::req_perform_parallel(reqs, on_error = "continue", progress = .progress)
+    resps <- httr2::req_perform_parallel(
+      reqs,
+      on_error = "continue",
+      progress = .progress
+    )
     errors <- !vapply(resps, inherits, logical(1), "httr2_response")
     if (any(errors)) {
       rlang::abort(
