@@ -223,7 +223,10 @@ awwid_metadata <- list(
         description = "Updated timestamp"
       )
     ),
-    list(pk = "materialoptionid")
+    list(
+      pk = "wellcasinglogid",
+      fk = c("welldecommissioningdetailid", "plugmaterialoptionid", "casingstatusid")
+    )
   ),
 
   Drillers = create_table_metadata(

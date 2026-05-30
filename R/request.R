@@ -1,5 +1,3 @@
-# internal helpers ----
-
 build_query_url <- function(base_url,
                             query,
                             skip = NULL,
@@ -42,27 +40,6 @@ get_query <- function(base_url,
     parse_odata_response()
 }
 
-# exported functions ----
-
-#' List AWWID database tables
-#'
-#' @return a character vector of table names available on the OData service.
-#' @export
-awwid_list_tables <- function() {
-  url <- "https://data.environment.alberta.ca/Services/EDW/waterwellsdatamart/odata"
-
-  metadata <- url |>
-    httr2::request() |>
-    httr2::req_perform()
-
-  metadata <- metadata |>
-    httr2::resp_body_string() |>
-    jsonlite::fromJSON()
-
-  table_names <- metadata$value$name
-  table_names <- table_names[!table_names %in% .awwid_excluded_tables]
-  table_names
-}
 
 #' Connect to the AEPA AWWID OData service
 #'
