@@ -11,11 +11,6 @@
 #'
 #' @return tibble of processed AWWID litholog data
 #' @export
-#' @importFrom rlang abort
-#' @importFrom glue glue
-#' @importFrom dplyr rename rename_with select left_join join_by na_if as_tibble any_of all_of contains
-#' @importFrom tidyr drop_na
-#' @importFrom units drop_units
 query_lithologs <- function(wells, well_reports, lithologies) {
   # Check the required columns are present in "wells"
   required_well_cols <- c("gicwellid", "wellid", "longitude", "latitude")
@@ -75,38 +70,47 @@ query_lithologs <- function(wells, well_reports, lithologies) {
 
   # Prepare AWWID tables
   awwid_wells <- wells |>
-    rename_with(tolower) |>
-    select(c("gicwellid", "wellid", "longitude", "latitude")) |>
-    drop_na(c("longitude", "latitude"))
+    dplyr::rename_with(tolower) |>
+    dplyr::select(c("gicwellid", "wellid", "longitude", "latitude")) |>
+    tidyr::drop_na(c("longitude", "latitude"))
 
   well_reports_index <- well_reports |>
-    select(all_of(c("wellid", "wellreportid", "totaldepthdrilled")))
+    dplyr::select(dplyr::all_of(c(
+      "wellid",
+      "wellreportid",
+      "totaldepthdrilled"
+    )))
 
-  awwid_lithologies <- left_join(
+  awwid_lithologies <- dplyr::left_join(
     lithologies,
     well_reports_index,
-    by = join_by("wellreportid")
+    by = dplyr::join_by("wellreportid")
   )
 
   awwid <-
-    left_join(awwid_lithologies, awwid_wells, by = "wellid") |>
-    select(
-      -any_of(c("wellreportid", "lithologyid", contains("time"), "wellid"))
+    dplyr::left_join(awwid_lithologies, awwid_wells, by = "wellid") |>
+    dplyr::select(
+      -dplyr::any_of(c(
+        "wellreportid",
+        "lithologyid",
+        contains("time"),
+        "wellid"
+      ))
     )
 
   # standardize columns
   awwid <- awwid |>
-    mutate(
-      material = na_if(.data$material, ""),
-      description = na_if(.data$description, "")
+    dplyr::mutate(
+      material = dplyr::na_if(.data$material, ""),
+      description = dplyr::na_if(.data$description, "")
     ) |>
-    rename(
+    dplyr::rename(
       int_top_dep = "lithdepthfrom",
       int_bot_dep = "lithdepthto",
       bh_depth = "totaldepthdrilled",
       material_desc = "description"
     ) |>
-    drop_units()
+    units::drop_units()
 
   # add ground elevation
   awwid <- add_ground_elevation(awwid)
@@ -127,14 +131,14 @@ query_lithologs <- function(wells, well_reports, lithologies) {
   )
 
   awwid <- awwid |>
-    select(!!!col_order) |>
-    as_tibble()
+    dplyr::select(!!!col_order) |>
+    dplyr::as_tibble()
 
   # Join with materials
-  awwid <- left_join(
+  awwid <- dplyr::left_join(
     awwid,
     materials,
-    by = join_by("material")
+    by = dplyr::join_by("material")
   )
 
   return(awwid)

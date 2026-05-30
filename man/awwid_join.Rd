@@ -29,15 +29,12 @@ name is inferred automatically from their class) or plain character strings
 matching an entity name in `nav` (PascalCase singular, e.g. `"WellReport"`).
 }
 \examples{
-nav  <- awwid_metadata_xml()
-con  <- awwid_connect()
+nav <- awwid_metadata_xml()
+con <- awwid_connect()
 
-wells    <- awwid_tbl(con$wells,    top = 100L)
-drillers <- awwid_tbl(con$drillers, top = 100L)
+wells <- awwid_tbl(con$wells, top = 100L)
+drilling_companies <- awwid_tbl(con$drillingcompanies, top = 100L)
 
 # Table names inferred automatically from the awwid class
-awwid_join(wells, drillers, nav)
-
-# Explicit entity names also work
-awwid_join("Well", "DrillingCompany", nav)
+awwid_join(wells, drilling_companies, nav)
 }
